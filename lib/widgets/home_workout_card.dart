@@ -21,7 +21,6 @@ class HomeWorkoutCard extends StatelessWidget {
           padding: EdgeInsets.all(8.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            //todo refactor styling
             children: <Widget>[
               Text(
                 'Start Workout',

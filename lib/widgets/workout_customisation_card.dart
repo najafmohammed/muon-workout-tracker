@@ -13,9 +13,9 @@ class WorkoutCustomisationCard extends StatefulWidget {
 class _WorkoutCustomisationCardState extends State<WorkoutCustomisationCard> {
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return CardWrapper(
       children: [
-        ElevatedButton.icon(
+        OutlinedButton.icon(
           onPressed: () {},
           icon: const Icon(Icons.edit),
           label: const Text(

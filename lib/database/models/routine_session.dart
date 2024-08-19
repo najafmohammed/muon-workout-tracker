@@ -40,9 +40,16 @@ class RoutineSession {
     }
   }
 
-  void pause() {
-    isRunning = false;
-    pausedTime = DateTime.now();
+  void togglePause() {
+    isRunning = !isRunning;
+    if (isRunning) {
+      // Resume the session and adjust startTime
+      startTime.add(DateTime.now().difference(pausedTime!));
+      pausedTime = null;
+    } else {
+      // Pause the session
+      pausedTime = DateTime.now();
+    }
   }
 
   void discard() {
