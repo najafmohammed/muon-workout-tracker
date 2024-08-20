@@ -8,10 +8,9 @@ class AppTheme {
 
   static ThemeData get darkTheme {
     return ThemeData(
-      brightness: Brightness.dark,
+      // brightness: Brightness.dark,
       colorScheme: ColorScheme.fromSeed(
-        background: backgroundColor,
-        seedColor: primaryColor,
+        seedColor: Color.fromARGB(255, 120, 231, 216),
         brightness: Brightness.dark,
       ),
     );

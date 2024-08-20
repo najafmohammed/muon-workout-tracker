@@ -10,7 +10,9 @@ final routineSessionProvider =
 class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
   RoutineSessionNotifier() : super(null);
 
-  void startSession(Routine routine) {
+  bool get isRunning => state?.isRunning ?? false;
+
+  void start(Routine routine) {
     state = RoutineSession(routine: routine, startTime: DateTime.now())
       ..start();
   }
@@ -23,12 +25,12 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     state?.finish();
   }
 
-  void finishSession() {
+  void finish() {
     state?.finish();
     state = null; // Clear the session after finishing
   }
 
-  void discardSession() {
+  void discard() {
     state?.discard();
     state = null;
   }

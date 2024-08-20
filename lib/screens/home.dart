@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:muon_workout_tracker/database/models/exercise.dart';
-// import 'package:muon_workout_tracker/database/providers/exercise_provider.dart';
-import 'package:muon_workout_tracker/database/repository/exercise_repository.dart';
 import 'package:muon_workout_tracker/widgets/home_workout_card.dart';
 import 'package:muon_workout_tracker/widgets/streak_card.dart';
-import 'package:muon_workout_tracker/widgets/workout_customisation_card.dart';
 
 class Home extends ConsumerWidget {
   const Home({super.key});
@@ -20,7 +16,6 @@ class Home extends ConsumerWidget {
         body: const Column(children: [
           HomeWorkoutCard(),
           StreakCard(),
-          WorkoutCustomisationCard(),
         ]));
   }
 }
