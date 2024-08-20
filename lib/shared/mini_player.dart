@@ -12,11 +12,11 @@ class MiniPlayer extends ConsumerStatefulWidget {
 class MiniPlayerState extends ConsumerState<MiniPlayer>
     with TickerProviderStateMixin {
   late AnimationController controller;
+
   @override
   Widget build(BuildContext context) {
-    final routineSession = ref.watch(routineSessionProvider);
-
-    final routineSessionNotifier = ref.read(routineSessionProvider.notifier);
+    final routineSession = ref.watch(routineSessionProvider.notifier);
+    final isRunning = ref.watch(routineSessionProvider)?.isRunning ?? false;
     return Column(
       children: [
         const LinearProgressIndicator(value: .8),
@@ -46,12 +46,14 @@ class MiniPlayerState extends ConsumerState<MiniPlayer>
               children: [
                 IconButton(
                     onPressed: () {
-                      print(routineSessionNotifier?.isRunning);
+                      routineSession.togglePause();
                     },
-                    icon: const Icon(Icons.play_arrow_rounded)),
+                    icon: Icon(isRunning
+                        ? Icons.pause_rounded
+                        : Icons.play_arrow_rounded)),
                 IconButton(
                     onPressed: () {
-                      routineSession?.start();
+                      routineSession.discard();
                     },
                     icon: const Icon(Icons.close)),
               ],

@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:muon_workout_tracker/database/providers/routine_session_provider.dart';
 import 'package:muon_workout_tracker/screens/home.dart';
 import 'package:muon_workout_tracker/screens/profile.dart';
 import 'package:muon_workout_tracker/screens/stats.dart';
 import 'package:muon_workout_tracker/screens/workouts.dart';
 import 'package:muon_workout_tracker/shared/mini_player.dart';
 
-class Navigation extends StatefulWidget {
+class Navigation extends ConsumerStatefulWidget {
   const Navigation({super.key});
 
   @override
-  State<Navigation> createState() => _NavigationState();
+  NavigationState createState() => NavigationState();
 }
 
-class _NavigationState extends State<Navigation>
+class NavigationState extends ConsumerState<Navigation>
     with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
 
@@ -27,12 +29,14 @@ class _NavigationState extends State<Navigation>
       const <Widget>[Home(), Workouts(), Stats(), Profile()][index];
   @override
   Widget build(BuildContext context) {
+    final isActive = ref.watch(routineSessionProvider)?.isActive ?? false;
+
     return Scaffold(
         body: _homePages(_selectedIndex),
         bottomNavigationBar: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const MiniPlayer(),
+            isActive ? const MiniPlayer() : const SizedBox(),
             NavigationBar(
               labelBehavior:
                   NavigationDestinationLabelBehavior.onlyShowSelected,

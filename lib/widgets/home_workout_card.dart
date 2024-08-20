@@ -9,7 +9,7 @@ class HomeWorkoutCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final routineSession = ref.watch(routineSessionProvider);
+    final routineSession = ref.watch(routineSessionProvider.notifier);
 
     return CardWrapper(children: [
       const Row(
@@ -40,7 +40,7 @@ class HomeWorkoutCard extends ConsumerWidget {
         children: [
           OutlinedButton(
               onPressed: () {
-                routineSession?.start();
+                routineSession.start();
               },
               child: const Text("Start Workout")),
         ],

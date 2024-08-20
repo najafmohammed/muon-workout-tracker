@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:muon_workout_tracker/screens/workout_manager.dart';
 
 class AddWorkoutCard extends StatelessWidget {
   const AddWorkoutCard({super.key, required this.label});
@@ -8,7 +9,12 @@ class AddWorkoutCard extends StatelessWidget {
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(10.0),
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ExerciseManager()),
+          );
+        },
         child: ListTile(
             title: Text(
               label,
