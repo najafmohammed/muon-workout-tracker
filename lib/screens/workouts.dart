@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:muon_workout_tracker/constants/styles.dart';
+import 'package:muon_workout_tracker/screens/exercise_manager.dart';
+import 'package:muon_workout_tracker/screens/routine_manager.dart';
 import 'package:muon_workout_tracker/widgets/add_workout_card.dart';
 import 'package:muon_workout_tracker/widgets/workouts_info_card.dart';
 
@@ -23,9 +25,15 @@ class Workouts extends StatelessWidget {
                 style: AppTextStyle.large,
               ),
             ),
-            AddWorkoutCard(label: 'Exercises'),
-            AddWorkoutCard(label: 'Routines'),
-            AddWorkoutCard(label: 'Splits'),
+            AddWorkoutCard(
+              label: 'Exercises',
+              widget: ExerciseManager(),
+            ),
+            AddWorkoutCard(
+              label: 'Routines',
+              widget: RoutineManager(),
+            ),
+            AddWorkoutCard(label: 'Splits', widget: RoutineManager()),
           ],
         ));
   }

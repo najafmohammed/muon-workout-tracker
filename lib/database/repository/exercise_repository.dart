@@ -7,8 +7,8 @@ class ExerciseRepository {
 
   final Isar _isar;
 
-  Stream<List<Exercise>> getAllExercises() {
-    return _isar.exercises.where().watch(fireImmediately: true);
+  Future<List<Exercise>> getAllExercises() {
+    return _isar.exercises.where().findAll();
   }
 
   Stream<List<Exercise>> getAllExercisesFiltered({

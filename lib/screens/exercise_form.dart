@@ -61,8 +61,7 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
     }
   }
 
-  Future<void> _submit(ExerciseRepository exerciseRepo,
-      ExerciseHistoryRepository exerciseHistoryRepo) async {
+  Future<void> _submit(ExerciseRepository exerciseRepo) async {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
 
@@ -89,6 +88,7 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
       } else {
         await exerciseRepo.addExercise(exercise, history);
       }
+      Navigator.of(context).pop();
     }
   }
 
@@ -96,7 +96,6 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
   Widget build(BuildContext context) {
     var dropdown = ref.read(muscleGroupsProvider);
     var exerciseRepo = ref.read(exerciseProvider);
-    var exerciseHistoryRepo = ref.read(exerciseHistoryProvider);
     return Scaffold(
       appBar: AppBar(
         title:
@@ -104,8 +103,7 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          _submit(exerciseRepo, exerciseHistoryRepo)
-              .then((_) => Navigator.of(context).pop());
+          _submit(exerciseRepo);
         },
         child: const Icon(Icons.save_rounded),
       ),

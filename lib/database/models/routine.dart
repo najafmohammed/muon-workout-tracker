@@ -6,6 +6,7 @@ part 'routine.g.dart';
 @Collection()
 class Routine {
   Id id = Isar.autoIncrement;
+  late String name;
   late DateTime? lastRun;
 
   // Relationship with Exercise
