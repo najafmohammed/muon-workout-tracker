@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:muon_workout_tracker/screens/workout_manager.dart';
+import 'package:muon_workout_tracker/screens/exercise_manager.dart';
 
 class AddWorkoutCard extends StatelessWidget {
   const AddWorkoutCard({super.key, required this.label});

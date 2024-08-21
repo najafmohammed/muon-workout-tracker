@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:muon_workout_tracker/database/models/routine.dart';
 import 'package:muon_workout_tracker/database/models/routine_session.dart';
 
 // StateNotifier to manage RoutineSession state and behavior

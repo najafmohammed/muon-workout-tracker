@@ -9,7 +9,7 @@ class Exercise {
   late String name;
   @enumerated
   late MuscleGroup muscleGroup;
-  late double multiplier;
+  late double increment;
   DateTime? lastRun;
   double? maxWeights;
 

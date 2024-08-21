@@ -17,19 +17,19 @@ const ExerciseSchema = CollectionSchema(
   name: r'Exercise',
   id: 2972066467915231902,
   properties: {
-    r'lastRun': PropertySchema(
+    r'increment': PropertySchema(
       id: 0,
+      name: r'increment',
+      type: IsarType.double,
+    ),
+    r'lastRun': PropertySchema(
+      id: 1,
       name: r'lastRun',
       type: IsarType.dateTime,
     ),
     r'maxWeights': PropertySchema(
-      id: 1,
-      name: r'maxWeights',
-      type: IsarType.double,
-    ),
-    r'multiplier': PropertySchema(
       id: 2,
-      name: r'multiplier',
+      name: r'maxWeights',
       type: IsarType.double,
     ),
     r'muscleGroup': PropertySchema(
@@ -81,9 +81,9 @@ void _exerciseSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.lastRun);
-  writer.writeDouble(offsets[1], object.maxWeights);
-  writer.writeDouble(offsets[2], object.multiplier);
+  writer.writeDouble(offsets[0], object.increment);
+  writer.writeDateTime(offsets[1], object.lastRun);
+  writer.writeDouble(offsets[2], object.maxWeights);
   writer.writeByte(offsets[3], object.muscleGroup.index);
   writer.writeString(offsets[4], object.name);
 }
@@ -96,9 +96,9 @@ Exercise _exerciseDeserialize(
 ) {
   final object = Exercise();
   object.id = id;
-  object.lastRun = reader.readDateTimeOrNull(offsets[0]);
-  object.maxWeights = reader.readDoubleOrNull(offsets[1]);
-  object.multiplier = reader.readDouble(offsets[2]);
+  object.increment = reader.readDouble(offsets[0]);
+  object.lastRun = reader.readDateTimeOrNull(offsets[1]);
+  object.maxWeights = reader.readDoubleOrNull(offsets[2]);
   object.muscleGroup =
       _ExercisemuscleGroupValueEnumMap[reader.readByteOrNull(offsets[3])] ??
           MuscleGroup.abs;
@@ -114,11 +114,11 @@ P _exerciseDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDateTimeOrNull(offset)) as P;
-    case 1:
-      return (reader.readDoubleOrNull(offset)) as P;
-    case 2:
       return (reader.readDouble(offset)) as P;
+    case 1:
+      return (reader.readDateTimeOrNull(offset)) as P;
+    case 2:
+      return (reader.readDoubleOrNull(offset)) as P;
     case 3:
       return (_ExercisemuscleGroupValueEnumMap[reader.readByteOrNull(offset)] ??
           MuscleGroup.abs) as P;
@@ -313,6 +313,68 @@ extension ExerciseQueryFilter
     });
   }
 
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> incrementEqualTo(
+    double value, {
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'increment',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> incrementGreaterThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'increment',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> incrementLessThan(
+    double value, {
+    bool include = false,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'increment',
+        value: value,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> incrementBetween(
+    double lower,
+    double upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    double epsilon = Query.epsilon,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'increment',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        epsilon: epsilon,
+      ));
+    });
+  }
+
   QueryBuilder<Exercise, Exercise, QAfterFilterCondition> lastRunIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const FilterCondition.isNull(
@@ -452,68 +514,6 @@ extension ExerciseQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
         property: r'maxWeights',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> multiplierEqualTo(
-    double value, {
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'multiplier',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> multiplierGreaterThan(
-    double value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'multiplier',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> multiplierLessThan(
-    double value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'multiplier',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> multiplierBetween(
-    double lower,
-    double upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'multiplier',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
@@ -777,6 +777,18 @@ extension ExerciseQueryLinks
 }
 
 extension ExerciseQuerySortBy on QueryBuilder<Exercise, Exercise, QSortBy> {
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByIncrement() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'increment', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByIncrementDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'increment', Sort.desc);
+    });
+  }
+
   QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByLastRun() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastRun', Sort.asc);
@@ -798,18 +810,6 @@ extension ExerciseQuerySortBy on QueryBuilder<Exercise, Exercise, QSortBy> {
   QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByMaxWeightsDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'maxWeights', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByMultiplier() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'multiplier', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByMultiplierDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'multiplier', Sort.desc);
     });
   }
 
@@ -852,6 +852,18 @@ extension ExerciseQuerySortThenBy
     });
   }
 
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByIncrement() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'increment', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByIncrementDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'increment', Sort.desc);
+    });
+  }
+
   QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByLastRun() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastRun', Sort.asc);
@@ -873,18 +885,6 @@ extension ExerciseQuerySortThenBy
   QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByMaxWeightsDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'maxWeights', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByMultiplier() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'multiplier', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByMultiplierDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'multiplier', Sort.desc);
     });
   }
 
@@ -915,6 +915,12 @@ extension ExerciseQuerySortThenBy
 
 extension ExerciseQueryWhereDistinct
     on QueryBuilder<Exercise, Exercise, QDistinct> {
+  QueryBuilder<Exercise, Exercise, QDistinct> distinctByIncrement() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'increment');
+    });
+  }
+
   QueryBuilder<Exercise, Exercise, QDistinct> distinctByLastRun() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'lastRun');
@@ -924,12 +930,6 @@ extension ExerciseQueryWhereDistinct
   QueryBuilder<Exercise, Exercise, QDistinct> distinctByMaxWeights() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'maxWeights');
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QDistinct> distinctByMultiplier() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'multiplier');
     });
   }
 
@@ -955,6 +955,12 @@ extension ExerciseQueryProperty
     });
   }
 
+  QueryBuilder<Exercise, double, QQueryOperations> incrementProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'increment');
+    });
+  }
+
   QueryBuilder<Exercise, DateTime?, QQueryOperations> lastRunProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lastRun');
@@ -964,12 +970,6 @@ extension ExerciseQueryProperty
   QueryBuilder<Exercise, double?, QQueryOperations> maxWeightsProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'maxWeights');
-    });
-  }
-
-  QueryBuilder<Exercise, double, QQueryOperations> multiplierProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'multiplier');
     });
   }
 

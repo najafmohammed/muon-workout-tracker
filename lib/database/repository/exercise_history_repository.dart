@@ -1,23 +1,23 @@
 import 'package:isar/isar.dart';
-import 'package:muon_workout_tracker/database/models/exercise.dart';
+import 'package:muon_workout_tracker/database/models/exercise_history.dart';
 
 class ExerciseHistoryRepository {
   ExerciseHistoryRepository(this._isar);
 
   final Isar _isar;
 
-  Future<List<Exercise>> getAllExerciseHistory() async {
-    return _isar.exercises.where().findAll();
+  Future<List<ExerciseHistory>> getAllExerciseHistory() async {
+    return _isar.exerciseHistorys.where().findAll();
   }
 
-  Future<Exercise?> getExerciseHistoryById(Id id) async {
-    return _isar.exercises.get(id);
+  Future<ExerciseHistory?> getExerciseHistoryById(Id id) async {
+    return _isar.exerciseHistorys.get(id);
   }
 
-  Future<bool> addExerciseHistory(Exercise exercise) async {
+  Future<bool> addExerciseHistory(ExerciseHistory exercise) async {
     try {
       await _isar.writeTxn(() async {
-        await _isar.exercises.put(exercise);
+        await _isar.exerciseHistorys.put(exercise);
       });
       return true;
     } catch (e) {
@@ -28,7 +28,7 @@ class ExerciseHistoryRepository {
   Future<bool> deleteExerciseHistory(Id id) async {
     try {
       await _isar.writeTxn(() async {
-        await _isar.exercises.delete(id);
+        await _isar.exerciseHistorys.delete(id);
       });
       return true;
     } catch (e) {
