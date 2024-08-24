@@ -10,7 +10,7 @@ class AppTheme {
     return ThemeData(
       // brightness: Brightness.dark,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Color.fromARGB(255, 120, 231, 216),
+        seedColor: const Color.fromARGB(255, 0, 238, 255),
         brightness: Brightness.dark,
       ),
     );

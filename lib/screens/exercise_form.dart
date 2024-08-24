@@ -6,10 +6,8 @@ import 'package:muon_workout_tracker/constants/styles.dart';
 import 'package:muon_workout_tracker/database/models/exercise.dart';
 import 'package:muon_workout_tracker/database/models/exercise_history.dart';
 import 'package:muon_workout_tracker/database/models/exercise_set.dart';
-import 'package:muon_workout_tracker/database/providers/exercise_history_provider.dart';
 import 'package:muon_workout_tracker/database/providers/exercise_provider.dart';
 import 'package:muon_workout_tracker/database/providers/muscle_group_provider.dart';
-import 'package:muon_workout_tracker/database/repository/exercise_history_repository.dart';
 import 'package:muon_workout_tracker/database/repository/exercise_repository.dart';
 
 class ExerciseForm extends ConsumerStatefulWidget {
@@ -107,68 +105,70 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
         },
         child: const Icon(Icons.save_rounded),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: FormBuilder(
-          key: _formKey,
-          child: Column(
-            children: [
-              FormBuilderTextField(
-                name: "name",
-                initialValue: _name,
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a name';
-                  }
-                  return null;
-                },
-                onChanged: (value) => _name = value!,
-              ),
-              FormBuilderDropdown<MuscleGroup>(
-                  validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(),
-                  ]),
-                  name: 'muscleGroup',
-                  initialValue: _muscleGroup,
-                  decoration: const InputDecoration(
-                    labelText: 'Muscle Group',
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: FormBuilder(
+            key: _formKey,
+            child: Column(
+              children: [
+                FormBuilderTextField(
+                  name: "name",
+                  initialValue: _name,
+                  decoration: const InputDecoration(labelText: 'Name'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a name';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) => _name = value!,
+                ),
+                FormBuilderDropdown<MuscleGroup>(
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(),
+                    ]),
+                    name: 'muscleGroup',
+                    initialValue: _muscleGroup,
+                    decoration: const InputDecoration(
+                      labelText: 'Muscle Group',
+                    ),
+                    items: dropdown
+                        .map((e) => DropdownMenuItem(
+                              value: e.value,
+                              child: Text(e.name),
+                            ))
+                        .toList()),
+                FormBuilderTextField(
+                  name: "increment",
+                  initialValue: _increment.toString(),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true, // No decimal point
                   ),
-                  items: dropdown
-                      .map((e) => DropdownMenuItem(
-                            value: e.value,
-                            child: Text(e.name),
-                          ))
-                      .toList()),
-              FormBuilderTextField(
-                name: "increment",
-                initialValue: _increment.toString(),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true, // No decimal point
+                  decoration: const InputDecoration(labelText: 'Increment'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a name';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) => _name = value!,
                 ),
-                decoration: const InputDecoration(labelText: 'Increment'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a name';
-                  }
-                  return null;
-                },
-                onChanged: (value) => _name = value!,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  widget.exercise != null
-                      ? "Edit last Sets"
-                      : "Add initial sets",
-                  style: AppTextStyle.large,
+                const SizedBox(
+                  height: 10,
                 ),
-              ),
-              SetBuilder(sets: sets)
-            ],
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    widget.exercise != null
+                        ? "Edit last Sets"
+                        : "Add initial sets",
+                    style: AppTextStyle.large,
+                  ),
+                ),
+                SetBuilder(sets: sets)
+              ],
+            ),
           ),
         ),
       ),
@@ -176,102 +176,176 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
   }
 }
 
-class SetBuilder extends StatelessWidget {
+class SetBuilder extends StatefulWidget {
+  final List<ExerciseSet> sets;
+  final bool isRunMode; // Determine if it's in run mode or creation mode
+  final VoidCallback? onNextExercise; // Callback when all sets are completed
+
   const SetBuilder({
     super.key,
     required this.sets,
+    this.isRunMode = false, // Defaults to creation mode
+    this.onNextExercise,
   });
 
-  final List<ExerciseSet> sets;
+  @override
+  _SetBuilderState createState() => _SetBuilderState();
+}
+
+class _SetBuilderState extends State<SetBuilder> {
+  List<bool> completedSets = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the completedSets list with false values for each set
+    completedSets = List<bool>.filled(widget.sets.length, false);
+  }
 
   @override
   Widget build(BuildContext context) {
     return FormBuilderField<List<ExerciseSet>>(
       name: 'sets',
-      initialValue: sets
+      initialValue: widget.sets
           .map((e) => ExerciseSet()
             ..setNumber = e.setNumber
             ..weight = e.weight
             ..reps = e.reps)
           .toList(),
       validator: (value) {
-        // Validate that the list is not empty and all sets have valid values
         if (value == null || value.isEmpty) {
           return 'Please add at least one set.';
         }
-        // for (var set in value) {
-        //   if (set.weight < 0) {
-        //     return 'Weight must be greater than 0 for each set.';
-        //   }
-        //   if (set.reps < 0) {
-        //     return 'Reps must be greater than 0 for each set.';
-        //   }
-        // }
-        return null; // Return null if validation passes
+        return null;
       },
       builder: (FormFieldState<List<ExerciseSet>> field) {
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (int i = 0; i < field.value!.length; i++)
-              Row(
-                children: [
-                  Text('Set ${field.value![i].setNumber}'),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: TextFormField(
-                      initialValue: field.value![i].weight.toString(),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(),
-                      ]),
-                      decoration:
-                          const InputDecoration(labelText: 'Weight (kg)'),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      onChanged: (value) {
-                        field.value![i] = field.value![i]
-                          ..weight = double.parse(value);
-                        field.didChange(field.value);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: TextFormField(
-                      initialValue: field.value![i].reps.toString(),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(),
-                      ]),
-                      decoration: const InputDecoration(labelText: 'Reps'),
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        field.value![i] = field.value![i]
-                          ..reps = int.parse(value);
-                        field.didChange(field.value);
-                      },
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      field.value!.removeAt(i);
-                      field.didChange(field.value);
-                    },
-                  ),
-                ],
+            // Grid layout for the header
+            GridView(
+              shrinkWrap: true,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                childAspectRatio: 3,
               ),
-            const SizedBox(
-              height: 10,
+              children: const [
+                Center(child: Text('Set', style: AppTextStyle.medium)),
+                Center(child: Text('Weight', style: AppTextStyle.medium)),
+                Center(child: Text('Reps', style: AppTextStyle.medium)),
+                SizedBox.shrink(), // Empty for delete button/checkbox column
+              ],
             ),
-            ElevatedButton(
-              onPressed: () {
-                field.value!.add(ExerciseSet()
-                  ..setNumber = field.value!.length + 1
-                  ..weight = 0
-                  ..reps = 0);
-                field.didChange(field.value);
-              },
-              child: const Text('Add Set'),
-            ),
+            const SizedBox(height: 10),
+            // Grid layout for each set
+            for (int i = 0; i < field.value!.length; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: GridView(
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    childAspectRatio: 3,
+                  ),
+                  children: [
+                    // Display the set number
+                    Center(child: Text('${i + 1}')),
+
+                    // Weight Input
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: TextFormField(
+                        initialValue: field.value![i].weight.toString(),
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+                        ]),
+                        decoration: const InputDecoration(
+                          border: UnderlineInputBorder(),
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        onChanged: (value) {
+                          field.value![i].weight = double.parse(value);
+                          field.didChange(field.value);
+                        },
+                      ),
+                    ),
+
+                    // Reps Input
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: TextFormField(
+                        initialValue: field.value![i].reps.toString(),
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(),
+                        ]),
+                        decoration: const InputDecoration(
+                          border: UnderlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          field.value![i].reps = int.parse(value);
+                          field.didChange(field.value);
+                        },
+                      ),
+                    ),
+
+                    // Action: Delete in creation mode, Checkbox in run mode
+                    Center(
+                      child: widget.isRunMode
+                          ? Checkbox(
+                              value: completedSets[i],
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  completedSets[i] = value ?? false;
+                                });
+
+                                // If all sets are completed, trigger onNextExercise
+                                if (completedSets
+                                    .every((completed) => completed)) {
+                                  widget.onNextExercise?.call();
+                                }
+                              },
+                            )
+                          : IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () {
+                                // Remove the set and its completion state
+                                final updatedSets =
+                                    List<ExerciseSet>.from(field.value!);
+                                updatedSets.removeAt(i);
+                                field.didChange(updatedSets);
+
+                                setState(() {
+                                  completedSets.removeAt(i);
+                                });
+                              },
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 20),
+
+            // Add Set Button (only visible in creation mode)
+            if (!widget.isRunMode)
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    final updatedSets = List<ExerciseSet>.from(field.value!);
+                    updatedSets.add(ExerciseSet()
+                      ..setNumber = updatedSets.length + 1
+                      ..weight = 0
+                      ..reps = 0);
+                    field.didChange(updatedSets);
+
+                    setState(() {
+                      completedSets.add(false); // Add a new checkbox state
+                    });
+                  },
+                  child: const Text('Add Set'),
+                ),
+              ),
           ],
         );
       },
