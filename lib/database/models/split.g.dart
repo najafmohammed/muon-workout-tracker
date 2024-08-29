@@ -17,8 +17,18 @@ const SplitSchema = CollectionSchema(
   name: r'Split',
   id: -746995213775774434,
   properties: {
-    r'nextIndex': PropertySchema(
+    r'isCompletedToday': PropertySchema(
       id: 0,
+      name: r'isCompletedToday',
+      type: IsarType.bool,
+    ),
+    r'name': PropertySchema(
+      id: 1,
+      name: r'name',
+      type: IsarType.string,
+    ),
+    r'nextIndex': PropertySchema(
+      id: 2,
       name: r'nextIndex',
       type: IsarType.long,
     )
@@ -50,6 +60,7 @@ int _splitEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
+  bytesCount += 3 + object.name.length * 3;
   return bytesCount;
 }
 
@@ -59,7 +70,9 @@ void _splitSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeLong(offsets[0], object.nextIndex);
+  writer.writeBool(offsets[0], object.isCompletedToday);
+  writer.writeString(offsets[1], object.name);
+  writer.writeLong(offsets[2], object.nextIndex);
 }
 
 Split _splitDeserialize(
@@ -70,7 +83,9 @@ Split _splitDeserialize(
 ) {
   final object = Split();
   object.id = id;
-  object.nextIndex = reader.readLong(offsets[0]);
+  object.isCompletedToday = reader.readBool(offsets[0]);
+  object.name = reader.readString(offsets[1]);
+  object.nextIndex = reader.readLong(offsets[2]);
   return object;
 }
 
@@ -82,6 +97,10 @@ P _splitDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
+      return (reader.readBool(offset)) as P;
+    case 1:
+      return (reader.readString(offset)) as P;
+    case 2:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -229,6 +248,144 @@ extension SplitQueryFilter on QueryBuilder<Split, Split, QFilterCondition> {
     });
   }
 
+  QueryBuilder<Split, Split, QAfterFilterCondition> isCompletedTodayEqualTo(
+      bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'isCompletedToday',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition> nameEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition> nameGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition> nameLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition> nameBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'name',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition> nameStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition> nameEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition> nameContains(String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'name',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition> nameMatches(String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'name',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition> nameIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'name',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition> nameIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'name',
+        value: '',
+      ));
+    });
+  }
+
   QueryBuilder<Split, Split, QAfterFilterCondition> nextIndexEqualTo(
       int value) {
     return QueryBuilder.apply(this, (query) {
@@ -344,6 +501,30 @@ extension SplitQueryLinks on QueryBuilder<Split, Split, QFilterCondition> {
 }
 
 extension SplitQuerySortBy on QueryBuilder<Split, Split, QSortBy> {
+  QueryBuilder<Split, Split, QAfterSortBy> sortByIsCompletedToday() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCompletedToday', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterSortBy> sortByIsCompletedTodayDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCompletedToday', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterSortBy> sortByName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'name', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterSortBy> sortByNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'name', Sort.desc);
+    });
+  }
+
   QueryBuilder<Split, Split, QAfterSortBy> sortByNextIndex() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'nextIndex', Sort.asc);
@@ -370,6 +551,30 @@ extension SplitQuerySortThenBy on QueryBuilder<Split, Split, QSortThenBy> {
     });
   }
 
+  QueryBuilder<Split, Split, QAfterSortBy> thenByIsCompletedToday() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCompletedToday', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterSortBy> thenByIsCompletedTodayDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isCompletedToday', Sort.desc);
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterSortBy> thenByName() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'name', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterSortBy> thenByNameDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'name', Sort.desc);
+    });
+  }
+
   QueryBuilder<Split, Split, QAfterSortBy> thenByNextIndex() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'nextIndex', Sort.asc);
@@ -384,6 +589,19 @@ extension SplitQuerySortThenBy on QueryBuilder<Split, Split, QSortThenBy> {
 }
 
 extension SplitQueryWhereDistinct on QueryBuilder<Split, Split, QDistinct> {
+  QueryBuilder<Split, Split, QDistinct> distinctByIsCompletedToday() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isCompletedToday');
+    });
+  }
+
+  QueryBuilder<Split, Split, QDistinct> distinctByName(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'name', caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Split, Split, QDistinct> distinctByNextIndex() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'nextIndex');
@@ -395,6 +613,18 @@ extension SplitQueryProperty on QueryBuilder<Split, Split, QQueryProperty> {
   QueryBuilder<Split, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Split, bool, QQueryOperations> isCompletedTodayProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isCompletedToday');
+    });
+  }
+
+  QueryBuilder<Split, String, QQueryOperations> nameProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'name');
     });
   }
 

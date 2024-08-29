@@ -6,7 +6,9 @@ part 'split.g.dart';
 @Collection()
 class Split {
   Id id = Isar.autoIncrement;
-  late int nextIndex;
+  late String name;
+  int nextIndex = 0;
+  bool isCompletedToday = false;
 
   // Relationship with Routine
   final routines = IsarLinks<Routine>();

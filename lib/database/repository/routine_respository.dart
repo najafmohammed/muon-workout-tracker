@@ -27,22 +27,21 @@ class RoutineRepository {
   Future<bool> addRoutine(Routine routine, List<Exercise> exercises) async {
     try {
       await _isar.writeTxn(() async {
-        // First, add the routine to the database
+        // First, add the routine to the database (if new)
         await _isar.routines.put(routine);
+        // Reset the link, no ideal but it just works
+        await routine.exercises.reset();
+        // replace the exercises again
+        routine.exercises.addAll(exercises);
+        // Save the updated exercises
+        await routine.exercises.save();
 
-        // Link exercises to the routine
-        for (var exercise in exercises) {
-          // Link each exercise to the routine
-          routine.exercises.add(exercise);
-        }
-        routine.exercises.save();
-
-        // Update the routine with linked exercises
+        // Finally, update the routine with the new exercises
         await _isar.routines.put(routine);
       });
+
       return true;
     } catch (e) {
-      // Handle error (you might want to log it or show a message to the user)
       print('Error adding routine: $e');
       return false;
     }
