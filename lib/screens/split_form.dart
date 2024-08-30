@@ -26,9 +26,37 @@ class SplitFormState extends ConsumerState<SplitForm> {
     super.initState();
     if (widget.split != null) {
       _name = widget.split!.name;
-      selectedRoutines = widget.split!.routines.map((e) => e).toList();
+      // selectedRoutines = widget.split!.routines.map((e) => e).toList();
+      initializeSelectedRoutines();
     } else {
       _name = '';
+    }
+  }
+
+  Future<void> initializeSelectedRoutines() async {
+    if (widget.split != null) {
+      // Load the routines linked to the split
+      await widget.split!.routines.load();
+
+      // Create a map to quickly access routines by their ID
+      final routineMap = {
+        for (var routine in widget.split!.routines) routine.id: routine
+      };
+
+      // Create a list to store the routines in the correct order
+      List<Routine> sortedRoutines = [];
+
+      // Add routines in the order specified by orderedRoutineIds
+      for (int routineId in widget.split!.orderedRoutineIds) {
+        if (routineMap.containsKey(routineId)) {
+          sortedRoutines.add(routineMap[routineId]!);
+        }
+      }
+
+      // Initialize selectedRoutines with the sorted list
+      setState(() {
+        selectedRoutines = sortedRoutines;
+      });
     }
   }
 
@@ -40,7 +68,7 @@ class SplitFormState extends ConsumerState<SplitForm> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text(
-              'Please select at least one exercise',
+              'Please select at least one routine',
               style: TextStyle(color: Colors.white),
             ),
             backgroundColor: Theme.of(context).cardColor,
@@ -60,8 +88,12 @@ class SplitFormState extends ConsumerState<SplitForm> {
           split.id = widget.split!.id;
         }
         split.name = _name;
-        splitRepo.addSplit(split, selectedRoutines);
-        // Backend implementation for saving the routine
+        split.orderedRoutineIds = [];
+
+        // Save the split with the new order of routines
+        await splitRepo.addSplit(split, selectedRoutines);
+
+        // Go back to the previous screen
         Navigator.of(context).pop();
       }
     }
@@ -84,7 +116,7 @@ class SplitFormState extends ConsumerState<SplitForm> {
     }
   }
 
-  void _removeExercise(int index) {
+  void _removeRoutine(int index) {
     setState(() {
       selectedRoutines.removeAt(index);
     });
@@ -124,7 +156,7 @@ class SplitFormState extends ConsumerState<SplitForm> {
                 onChanged: (value) => _name = value!,
               ),
               const SizedBox(height: 20),
-              Text('Routine:', style: Theme.of(context).textTheme.headline6),
+              Text('Routines:', style: Theme.of(context).textTheme.headline6),
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: _openRoutineSelectionScreen,
@@ -144,14 +176,25 @@ class SplitFormState extends ConsumerState<SplitForm> {
                         selectedRoutines.insert(newIndex, item);
                       });
                     },
+                    buildDefaultDragHandles: true,
                     itemBuilder: (context, index) {
                       final routine = selectedRoutines[index];
-                      return ListTile(
+                      return Card(
                         key: ValueKey(routine.id),
-                        title: Text(routine.name),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () => _removeExercise(index),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ListTile(
+                          title: Text(routine.name),
+                          leading: ReorderableDragStartListener(
+                            index: index,
+                            child: const Icon(Icons.drag_handle),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _removeRoutine(index),
+                          ),
                         ),
                       );
                     },

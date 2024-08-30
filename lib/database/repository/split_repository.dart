@@ -20,19 +20,6 @@ class SplitRepository {
         .watch(fireImmediately: true);
   }
 
-  Future<Split?> getSplitById(Id id) async {
-    return _isar.splits.get(id);
-  }
-
-  Stream<List<Split>> getAllRoutinesFiltered({
-    required String nameFilter,
-  }) {
-    return _isar.splits
-        .filter()
-        .nameContains(nameFilter)
-        .watch(fireImmediately: true);
-  }
-
   Future<bool> addSplit(Split split, List<Routine> routines) async {
     try {
       await _isar.writeTxn(() async {
@@ -41,6 +28,10 @@ class SplitRepository {
         // Reset the link, no ideal but it just works
         await split.routines.reset();
         // replace the exercises again
+        for (int i = 0; i < routines.length; i++) {
+          split.routines.add(routines[i]);
+          split.orderedRoutineIds.add(routines[i].id);
+        }
         split.routines.addAll(routines);
         // Save the updated exercises
         await split.routines.save();
@@ -54,6 +45,30 @@ class SplitRepository {
       print('Error adding routine: $e');
       return false;
     }
+  }
+
+  Future<List<Routine>> getOrderedRoutinesFromSplit(Split split) async {
+    // Ensure that the routines are loaded
+    await split.routines.load();
+
+    // Create a map to quickly access routines by their id
+    final routineMap = {
+      for (var routine in split.routines) routine.id: routine
+    };
+
+    // Create an empty list to hold the routines in the correct order
+    List<Routine> orderedRoutines = [];
+
+    // Sort the routines by using the order of ids in `orderedRoutineIds`
+    for (int routineId in split.orderedRoutineIds) {
+      // If the routine with this id exists in the map, add it to the ordered list
+      if (routineMap.containsKey(routineId)) {
+        orderedRoutines.add(routineMap[routineId]!);
+      }
+    }
+
+    // Return the routines sorted by the `orderedRoutineIds`
+    return orderedRoutines;
   }
 
   Future<bool> updateSplit(Split split) async {

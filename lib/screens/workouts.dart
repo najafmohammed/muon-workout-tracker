@@ -22,7 +22,7 @@ class Workouts extends StatelessWidget {
             Padding(
               padding: EdgeInsets.all(8.0),
               child: Text(
-                'Customise your Workouts',
+                'Manage your Workouts',
                 style: AppTextStyle.large,
               ),
             ),

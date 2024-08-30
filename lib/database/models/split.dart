@@ -11,5 +11,8 @@ class Split {
   bool isCompletedToday = false;
 
   // Relationship with Routine
-  final routines = IsarLinks<Routine>();
+  final routines = IsarLinks<Routine>(); // Links to Routines
+
+  // Store the order of routine ids
+  late List<int> orderedRoutineIds;
 }

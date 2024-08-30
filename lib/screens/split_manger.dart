@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:muon_workout_tracker/database/models/split.dart';
 import 'package:muon_workout_tracker/database/providers/split_provider.dart';
-import 'package:muon_workout_tracker/screens/routine_form.dart';
 import 'package:muon_workout_tracker/screens/split_form.dart';
 import 'package:muon_workout_tracker/shared/confirm_dialog.dart';
 
@@ -10,10 +9,10 @@ class SplitManager extends ConsumerStatefulWidget {
   const SplitManager({super.key});
 
   @override
-  RoutineManagerState createState() => RoutineManagerState();
+  SplitManagerState createState() => SplitManagerState();
 }
 
-class RoutineManagerState extends ConsumerState<SplitManager> {
+class SplitManagerState extends ConsumerState<SplitManager> {
   final TextEditingController _textController = TextEditingController();
   String nameFilter = '';
   @override

@@ -31,6 +31,11 @@ const SplitSchema = CollectionSchema(
       id: 2,
       name: r'nextIndex',
       type: IsarType.long,
+    ),
+    r'orderedRoutineIds': PropertySchema(
+      id: 3,
+      name: r'orderedRoutineIds',
+      type: IsarType.longList,
     )
   },
   estimateSize: _splitEstimateSize,
@@ -61,6 +66,7 @@ int _splitEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.name.length * 3;
+  bytesCount += 3 + object.orderedRoutineIds.length * 8;
   return bytesCount;
 }
 
@@ -73,6 +79,7 @@ void _splitSerialize(
   writer.writeBool(offsets[0], object.isCompletedToday);
   writer.writeString(offsets[1], object.name);
   writer.writeLong(offsets[2], object.nextIndex);
+  writer.writeLongList(offsets[3], object.orderedRoutineIds);
 }
 
 Split _splitDeserialize(
@@ -86,6 +93,7 @@ Split _splitDeserialize(
   object.isCompletedToday = reader.readBool(offsets[0]);
   object.name = reader.readString(offsets[1]);
   object.nextIndex = reader.readLong(offsets[2]);
+  object.orderedRoutineIds = reader.readLongList(offsets[3]) ?? [];
   return object;
 }
 
@@ -102,6 +110,8 @@ P _splitDeserializeProp<P>(
       return (reader.readString(offset)) as P;
     case 2:
       return (reader.readLong(offset)) as P;
+    case 3:
+      return (reader.readLongList(offset) ?? []) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -438,6 +448,150 @@ extension SplitQueryFilter on QueryBuilder<Split, Split, QFilterCondition> {
       ));
     });
   }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition>
+      orderedRoutineIdsElementEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'orderedRoutineIds',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition>
+      orderedRoutineIdsElementGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'orderedRoutineIds',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition>
+      orderedRoutineIdsElementLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'orderedRoutineIds',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition>
+      orderedRoutineIdsElementBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'orderedRoutineIds',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition>
+      orderedRoutineIdsLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'orderedRoutineIds',
+        length,
+        true,
+        length,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition> orderedRoutineIdsIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'orderedRoutineIds',
+        0,
+        true,
+        0,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition>
+      orderedRoutineIdsIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'orderedRoutineIds',
+        0,
+        false,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition>
+      orderedRoutineIdsLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'orderedRoutineIds',
+        0,
+        true,
+        length,
+        include,
+      );
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition>
+      orderedRoutineIdsLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'orderedRoutineIds',
+        length,
+        include,
+        999999,
+        true,
+      );
+    });
+  }
+
+  QueryBuilder<Split, Split, QAfterFilterCondition>
+      orderedRoutineIdsLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.listLength(
+        r'orderedRoutineIds',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
+      );
+    });
+  }
 }
 
 extension SplitQueryObject on QueryBuilder<Split, Split, QFilterCondition> {}
@@ -607,6 +761,12 @@ extension SplitQueryWhereDistinct on QueryBuilder<Split, Split, QDistinct> {
       return query.addDistinctBy(r'nextIndex');
     });
   }
+
+  QueryBuilder<Split, Split, QDistinct> distinctByOrderedRoutineIds() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'orderedRoutineIds');
+    });
+  }
 }
 
 extension SplitQueryProperty on QueryBuilder<Split, Split, QQueryProperty> {
@@ -631,6 +791,12 @@ extension SplitQueryProperty on QueryBuilder<Split, Split, QQueryProperty> {
   QueryBuilder<Split, int, QQueryOperations> nextIndexProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'nextIndex');
+    });
+  }
+
+  QueryBuilder<Split, List<int>, QQueryOperations> orderedRoutineIdsProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'orderedRoutineIds');
     });
   }
 }
