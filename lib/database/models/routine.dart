@@ -11,4 +11,7 @@ class Routine {
 
   // Relationship with Exercise
   final exercises = IsarLinks<Exercise>();
+
+  // Store the order of exercise ids
+  late List<int> orderedExerciseIds;
 }

@@ -32,6 +32,12 @@ class RoutineRepository {
         // Reset the link, no ideal but it just works
         await routine.exercises.reset();
         // replace the exercises again
+
+        for (int i = 0; i < exercises.length; i++) {
+          routine.exercises.add(exercises[i]);
+          routine.orderedExerciseIds.add(exercises[i].id);
+        }
+
         routine.exercises.addAll(exercises);
         // Save the updated exercises
         await routine.exercises.save();

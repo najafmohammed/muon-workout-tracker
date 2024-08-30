@@ -19,16 +19,43 @@ class RoutineForm extends ConsumerStatefulWidget {
 class RoutineFormState extends ConsumerState<RoutineForm> {
   final _formKey = GlobalKey<FormBuilderState>();
   late String _name;
-  List<Exercise> selectedExercises = []; // To hold the selected exercises
+  List<Exercise> selectedExercises = []; // To hold the selected routines
 
   @override
   void initState() {
     super.initState();
     if (widget.routine != null) {
       _name = widget.routine!.name;
-      selectedExercises = widget.routine!.exercises.map((e) => e).toList();
+      initializeSelectedExercises();
     } else {
       _name = '';
+    }
+  }
+
+  Future<void> initializeSelectedExercises() async {
+    if (widget.routine != null) {
+      // Load the routine linked to the exercises
+      await widget.routine!.exercises.load();
+
+      // Create a map to quickly access routines by their ID
+      final exerciseMap = {
+        for (var routine in widget.routine!.exercises) routine.id: routine
+      };
+
+      // Create a list to store the routines in the correct order
+      List<Exercise> sortedExercises = [];
+
+      // Add routines in the order specified by orderedRoutineIds
+      for (int exerciseId in widget.routine!.orderedExerciseIds) {
+        if (exerciseMap.containsKey(exerciseId)) {
+          sortedExercises.add(exerciseMap[exerciseId]!);
+        }
+      }
+
+      // Initialize selectedRoutines with the sorted list
+      setState(() {
+        selectedExercises = sortedExercises;
+      });
     }
   }
 
@@ -40,7 +67,7 @@ class RoutineFormState extends ConsumerState<RoutineForm> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text(
-              'Please select at least one exercise',
+              'Please select at least one routine',
               style: TextStyle(color: Colors.white),
             ),
             backgroundColor: Theme.of(context).cardColor,
@@ -58,18 +85,23 @@ class RoutineFormState extends ConsumerState<RoutineForm> {
         var routine = Routine();
         if (widget.routine != null) {
           routine.id = widget.routine!.id;
+          routine.lastRun = widget.routine!.lastRun;
+        } else {
+          routine.lastRun = DateTime.now();
         }
         routine.name = _name;
-        routine.lastRun = DateTime.now();
+        routine.orderedExerciseIds = [];
 
-        routineRepo.addRoutine(routine, selectedExercises);
-        // Backend implementation for saving the routine
+        // Save the routine with the new order of exercises
+        await routineRepo.addRoutine(routine, selectedExercises);
+
+        // Go back to the previous screen
         Navigator.of(context).pop();
       }
     }
   }
 
-  void _openExerciseSelectionScreen() async {
+  void _openRoutineSelectionScreen() async {
     final result = await Navigator.push<List<Exercise>>(
       context,
       MaterialPageRoute(
@@ -86,7 +118,7 @@ class RoutineFormState extends ConsumerState<RoutineForm> {
     }
   }
 
-  void _removeExercise(int index) {
+  void _removeRoutine(int index) {
     setState(() {
       selectedExercises.removeAt(index);
     });
@@ -126,11 +158,11 @@ class RoutineFormState extends ConsumerState<RoutineForm> {
                 onChanged: (value) => _name = value!,
               ),
               const SizedBox(height: 20),
-              Text('Exercises:', style: Theme.of(context).textTheme.headline6),
+              Text('Routines:', style: Theme.of(context).textTheme.headline6),
               const SizedBox(height: 10),
               ElevatedButton(
-                onPressed: _openExerciseSelectionScreen,
-                child: const Text('Select Exercises'),
+                onPressed: _openRoutineSelectionScreen,
+                child: const Text('Select Routine'),
               ),
               const SizedBox(height: 20),
               if (selectedExercises.isNotEmpty) ...[
@@ -146,22 +178,32 @@ class RoutineFormState extends ConsumerState<RoutineForm> {
                         selectedExercises.insert(newIndex, item);
                       });
                     },
+                    buildDefaultDragHandles: true,
                     itemBuilder: (context, index) {
-                      final exercise = selectedExercises[index];
-                      return ListTile(
-                        key: ValueKey(exercise.id),
-                        title: Text(exercise.name),
-                        subtitle: Text(exercise.muscleGroup.name),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () => _removeExercise(index),
+                      final routine = selectedExercises[index];
+                      return Card(
+                        key: ValueKey(routine.id),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ListTile(
+                          title: Text(routine.name),
+                          leading: ReorderableDragStartListener(
+                            index: index,
+                            child: const Icon(Icons.drag_handle),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _removeRoutine(index),
+                          ),
                         ),
                       );
                     },
                   ),
                 ),
               ] else
-                const Text('No exercises selected.'),
+                const Text('No routines selected.'),
             ],
           ),
         ),
