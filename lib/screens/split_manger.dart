@@ -72,7 +72,7 @@ class SplitManagerState extends ConsumerState<SplitManager> {
                             child: Icon(Icons.fitness_center),
                           ),
                           title: Text(split.name),
-                          subtitle: Text(split.isCompletedToday.toString()),
+                          subtitle: Text(split.nextIndex.toString()),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [

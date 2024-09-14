@@ -8,7 +8,6 @@ class Split {
   Id id = Isar.autoIncrement;
   late String name;
   int nextIndex = 0;
-  bool isCompletedToday = false;
 
   // Relationship with Routine
   final routines = IsarLinks<Routine>(); // Links to Routines
