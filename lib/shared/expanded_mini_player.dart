@@ -1,75 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:muon_workout_tracker/database/models/exercise_set.dart';
-import 'package:muon_workout_tracker/screens/exercise_form.dart';
-import 'package:muon_workout_tracker/shared/confirm_dialog.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:muon_workout_tracker/database/providers/routine_session_provider.dart';
+import 'package:muon_workout_tracker/screens/exercise_playlist.dart';
+import 'package:muon_workout_tracker/shared/set_builder.dart';
 import 'package:muon_workout_tracker/shared/wrappers/card_wrapper.dart';
 
-class ExpandedMiniPlayer extends StatefulWidget {
+class ExpandedMiniPlayer extends ConsumerStatefulWidget {
   const ExpandedMiniPlayer({super.key});
 
   @override
-  State<ExpandedMiniPlayer> createState() => _ExpandedMiniPlayerState();
+  _ExpandedMiniPlayerState createState() => _ExpandedMiniPlayerState();
 }
 
-class _ExpandedMiniPlayerState extends State<ExpandedMiniPlayer> {
-  List<ExerciseSet> sets = [
-    ExerciseSet()
-      ..setNumber = 1
-      ..reps = 1
-      ..weight = 10,
-    ExerciseSet()
-      ..setNumber = 2
-      ..reps = 2
-      ..weight = 20,
-  ];
-
-  bool _isPlaying = false;
-  Duration _elapsedTime = Duration.zero;
-  DateTime? _startTime;
-
-  void _togglePlayPause() {
-    setState(() {
-      _isPlaying = !_isPlaying;
-      if (_isPlaying) {
-        _startTime = DateTime.now();
-      } else {
-        if (_startTime != null) {
-          _elapsedTime += DateTime.now().difference(_startTime!);
-          _startTime = null;
-        }
-      }
-    });
-    // Handle play/pause logic
-  }
-
-  void _nextExercise() {
-    // Handle going to the next exercise
-  }
-
-  void _previousExercise() {
-    // Handle going to the previous exercise
-  }
-
-  void _finishWorkout() {
-    // Handle finishing the workout
-  }
-
-  void _discardWorkout() {
-    // Handle discarding the workout
-  }
-
-  void _viewAllExercises() {
-    // Handle viewing all exercises
-  }
-
+class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
   @override
   Widget build(BuildContext context) {
-    final elapsedTimeString =
-        _elapsedTime.toString().split('.').first.padLeft(8, "0");
-
+    // Read the session state and notifier
+    final routineSession = ref.watch(routineSessionProvider);
+    final routineSessionNotifier = ref.watch(routineSessionProvider.notifier);
+    final elapsedTimeString = routineSessionNotifier.elapsedTime
+        .toString()
+        .split('.')
+        .first
+        .padLeft(8, "0");
+    final isPlaying = routineSession?.isRunning ?? false;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('PUSH'),
+        title: Text(
+            routineSessionNotifier.currentExercise?.name ?? "Exercise name"),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.keyboard_arrow_down_rounded),
@@ -92,22 +50,14 @@ class _ExpandedMiniPlayerState extends State<ExpandedMiniPlayer> {
               child: CardWrapper(
                 children: [
                   SetBuilder(
-                    sets: sets,
+                    // setsWithCompletion: routineSession!.exerciseSets.entries
+                    //     .toList()[routineSession.currentExerciseIndex],
+                    // setsWithCompletion: [],
                     isRunMode: true,
                     onNextExercise: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return ConfirmDialog(
-                            title: 'Delete Item',
-                            message:
-                                'Are you sure you want to delete this item?',
-                            onConfirm: () {},
-                            onCancel: () {},
-                          );
-                        },
-                      );
+                      routineSessionNotifier.nextExercise();
                     },
+                    sets: [],
                   ),
                 ],
               ),
@@ -115,13 +65,30 @@ class _ExpandedMiniPlayerState extends State<ExpandedMiniPlayer> {
           ),
           // Workout Controls with Elapsed Time
           WorkoutControls(
-            onPlayPause: _togglePlayPause,
-            onNextExercise: _nextExercise,
-            onPreviousExercise: _previousExercise,
-            onFinishWorkout: _finishWorkout,
-            onDiscardWorkout: _discardWorkout,
-            onViewAllExercises: _viewAllExercises,
-            isPlaying: _isPlaying,
+            onPlayPause: () {
+              routineSessionNotifier.togglePause();
+            },
+            onNextExercise: () {
+              routineSessionNotifier.nextExercise();
+            },
+            onPreviousExercise: () {
+              routineSessionNotifier.previousExercise();
+            },
+            onFinishWorkout: () {
+              routineSessionNotifier.finishSession();
+            },
+            onDiscardWorkout: () {
+              routineSessionNotifier.discardSession();
+              Navigator.pop(context);
+            },
+            onViewAllExercises: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const ExercisePlaylist()),
+              );
+            },
+            isPlaying: isPlaying,
             elapsedTime: elapsedTimeString,
           ),
         ],
@@ -163,18 +130,18 @@ class WorkoutControls extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${elapsedTime}',
+                elapsedTime,
                 style:
                     const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               IconButton(
-                  onPressed: () {}, icon: const Icon(Icons.playlist_play))
+                onPressed: onViewAllExercises,
+                icon: const Icon(Icons.playlist_play),
+              ),
             ],
           ),
         ),
-        // Play/Pause Button
-
-        // Navigation Controls
+        // Play/Pause Button and Navigation Controls
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

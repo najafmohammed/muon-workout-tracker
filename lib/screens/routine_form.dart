@@ -162,7 +162,7 @@ class RoutineFormState extends ConsumerState<RoutineForm> {
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: _openRoutineSelectionScreen,
-                child: const Text('Select Routine'),
+                child: const Text('Select Exercise'),
               ),
               const SizedBox(height: 20),
               if (selectedExercises.isNotEmpty) ...[

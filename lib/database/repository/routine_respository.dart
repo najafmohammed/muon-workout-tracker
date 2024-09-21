@@ -24,6 +24,34 @@ class RoutineRepository {
     return _isar.routines.get(id);
   }
 
+  Future<List<Exercise>> getAllRoutineExercises(Id id) async {
+    return _isar.routines.get(id).then((value) => value!.exercises.toList());
+  }
+
+  Future<List<Exercise>> getOrderedExercisesFromRoutine(Routine routine) async {
+    // Ensure that the routines are loaded
+    await routine.exercises.load();
+
+    // Create a map to quickly access routines by their id
+    final exerciseMap = {
+      for (var exercises in routine.exercises) exercises.id: exercises
+    };
+
+    // Create an empty list to hold the routines in the correct order
+    List<Exercise> orderedExercises = [];
+
+    // Sort the routines by using the order of ids in `orderedRoutineIds`
+    for (int exerciseId in routine.orderedExerciseIds) {
+      // If the routine with this id exists in the map, add it to the ordered list
+      if (exerciseMap.containsKey(exerciseId)) {
+        orderedExercises.add(exerciseMap[exerciseId]!);
+      }
+    }
+
+    // Return the routines sorted by the `orderedRoutineIds`
+    return orderedExercises;
+  }
+
   Future<bool> addRoutine(Routine routine, List<Exercise> exercises) async {
     try {
       await _isar.writeTxn(() async {

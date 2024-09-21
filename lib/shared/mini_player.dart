@@ -83,7 +83,7 @@ class MiniPlayerState extends ConsumerState<MiniPlayer>
                           : Icons.play_arrow_rounded)),
                   IconButton(
                       onPressed: () {
-                        routineSession.discard();
+                        routineSession.discardSession();
                       },
                       icon: const Icon(Icons.close)),
                 ],

@@ -1,6 +1,7 @@
 import 'package:isar/isar.dart';
 import 'package:muon_workout_tracker/database/models/exercise.dart';
 import 'package:muon_workout_tracker/database/models/exercise_history.dart';
+import 'package:muon_workout_tracker/database/models/exercise_set.dart';
 
 class ExerciseRepository {
   ExerciseRepository(this._isar);
@@ -20,8 +21,27 @@ class ExerciseRepository {
         .watch(fireImmediately: true);
   }
 
-  Future<Exercise?> getExerciseById(Id id) async {
-    return _isar.exercises.get(id);
+  Future<List<ExerciseSet>> getLatestSetsForExercise(Exercise exercise) async {
+    // Load all the linked exercise histories for the exercise
+    await exercise.exerciseHistory.load();
+
+    if (exercise.exerciseHistory.isNotEmpty) {
+      // Sort the exercise history by date (assuming ExerciseHistory has a 'date' field)
+      final sortedHistories = exercise.exerciseHistory.toList()
+        ..sort((a, b) => b.date.compareTo(a.date)); // Sort descending by date
+
+      // Get the latest history
+      final latestHistory = sortedHistories.first;
+
+      // Load the sets linked to the latest history
+      // await latestHistory.sets;
+
+      // Return the list of sets for the latest history
+      return latestHistory.sets.toList();
+    } else {
+      // If there is no exercise history, return an empty list
+      return [];
+    }
   }
 
   Future<bool> addExercise(Exercise exercise, ExerciseHistory history) async {
