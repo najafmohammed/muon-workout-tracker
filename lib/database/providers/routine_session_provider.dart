@@ -14,7 +14,7 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
   Timer? _timer; // Timer instance to update elapsed time
 
   RoutineSessionNotifier(this.ref) : super(null);
-
+  int currentSetIndex = 0;
   // Start a new session with a given routine and exercises
   Future<void> start() async {
     final userSettings = ref.read(userSettingsProvider);
@@ -22,7 +22,8 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
       print('No current split found');
       return;
     }
-
+    //reset index
+    currentSetIndex = 0;
     final currentSplit = await userSettings.currentSplit;
     final split = ref.read(splitProvider);
     final routineProv = ref.read(routineProvider);
@@ -116,6 +117,8 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     if (state != null &&
         state!.currentExerciseIndex < state!.exercises.length - 1) {
       final newIndex = state!.currentExerciseIndex + 1;
+      //reset index for next set
+      currentSetIndex = 0;
 
       // Update state with the new exercise and its sets
       state = state!.copyWith(
@@ -128,6 +131,8 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
   Future<void> previousExercise() async {
     if (state != null && state!.currentExerciseIndex > 0) {
       final newIndex = state!.currentExerciseIndex - 1;
+      //reset index for next set
+      currentSetIndex = 0;
 
       // Update state with the new exercise and its sets
       state = state!.copyWith(
@@ -140,9 +145,9 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
 
   void updateSetCompletion(int setIndex, bool isCompleted) {
     if (state == null) return;
-
     final exercise = state!.exercises[state!.currentExerciseIndex];
-
+    //increment for next set
+    currentSetIndex++;
     // Get the current list of sets for the exercise
     final List<Map<String, dynamic>> exerciseSets =
         state!.exerciseSets[exercise]!;
@@ -206,11 +211,43 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     return null;
   }
 
+  double get progress {
+    if (state == null) return 0.0;
+
+    int totalSets = 0;
+    int completedSets = 0;
+
+    // Iterate through all exercises and their sets
+    state!.exerciseSets.forEach((exercise, sets) {
+      totalSets += sets.length; // Count total sets
+      completedSets += sets
+          .where((setMap) => setMap['completed'] == true)
+          .length; // Count completed sets
+    });
+
+    if (totalSets == 0) return 0.0; // Avoid division by zero
+    return completedSets / totalSets; // Return the progress as a ratio
+  }
+
   Map<Exercise, List<Map<String, dynamic>>> get exerciseSets {
     if (state != null) {
       return state!.exerciseSets;
     }
     return <Exercise, List<Map<String, dynamic>>>{}; // Return an empty map
+  }
+
+//get the next set
+  Map<String, dynamic>? get currentSet {
+    if (state == null) return null;
+
+    final exercise = state!.exercises[state!.currentExerciseIndex];
+    final sets = state!.exerciseSets[exercise]!;
+
+    if (currentSetIndex < sets.length) {
+      return sets[currentSetIndex]; // Return the current set
+    }
+
+    return null; // No more sets available
   }
 
   // Get elapsed time

@@ -6,6 +6,7 @@ class RoutineSession {
   DateTime? pausedTime;
   bool isRunning;
   bool isActive;
+  double progress;
   List<Exercise> exercises; // List of exercises in the routine
   Routine routine;
   int currentExerciseIndex;
@@ -20,6 +21,7 @@ class RoutineSession {
       this.isActive = false,
       required this.exercises, // Initialize with the list of exercises
       this.currentExerciseIndex = 0,
+      this.progress = 0.0,
       required this.exerciseSets,
       this.exerciseCompletionStatus = const {},
       required this.routine});
@@ -30,6 +32,7 @@ class RoutineSession {
       DateTime? pausedTime,
       bool? isRunning,
       bool? isActive,
+      double? progress,
       List<Exercise>? exercises, // Update exercises if needed
       int? currentExerciseIndex, // Update current exercise index
       Map<Exercise, List<Map<String, dynamic>>>? exerciseSets,
@@ -44,6 +47,7 @@ class RoutineSession {
       exercises: exercises ?? this.exercises, // Preserve or update exercises
       currentExerciseIndex: currentExerciseIndex ?? this.currentExerciseIndex,
       exerciseSets: exerciseSets ?? this.exerciseSets,
+      progress: progress ?? this.progress,
       exerciseCompletionStatus:
           exerciseCompletionStatus ?? this.exerciseCompletionStatus,
     );

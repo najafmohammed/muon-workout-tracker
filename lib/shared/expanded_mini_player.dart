@@ -47,9 +47,10 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
       body: Column(
         children: [
           // Progress Indicator
-          const Hero(
+          Hero(
             tag: "Progress",
-            child: LinearProgressIndicator(value: .8),
+            child:
+                LinearProgressIndicator(value: routineSessionNotifier.progress),
           ),
           // Content section
           Expanded(

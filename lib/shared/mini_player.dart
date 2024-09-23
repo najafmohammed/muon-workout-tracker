@@ -16,8 +16,11 @@ class MiniPlayerState extends ConsumerState<MiniPlayer>
 
   @override
   Widget build(BuildContext context) {
-    final routineSession = ref.watch(routineSessionProvider.notifier);
     final isRunning = ref.watch(routineSessionProvider)?.isRunning ?? false;
+    final routineSessionNotifier = ref.watch(routineSessionProvider.notifier);
+    // formatting for current set and reps
+    final currentSet =
+        '${(routineSessionNotifier.currentSet?.entries.first.value.weight.toInt())} Kg x ${routineSessionNotifier.currentSet?.entries.first.value.reps}';
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -46,9 +49,10 @@ class MiniPlayerState extends ConsumerState<MiniPlayer>
       },
       child: Column(
         children: [
-          const Hero(
+          Hero(
             tag: "Progress",
-            child: LinearProgressIndicator(value: .8),
+            child:
+                LinearProgressIndicator(value: routineSessionNotifier.progress),
           ),
           const SizedBox(
             height: 10,
@@ -63,11 +67,11 @@ class MiniPlayerState extends ConsumerState<MiniPlayer>
                   const SizedBox(
                     width: 10.0,
                   ),
-                  const Column(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Bench press'),
-                      Text('10kg x 12'),
+                      Text(routineSessionNotifier.currentExercise?.name ?? ""),
+                      Text(currentSet),
                     ],
                   ),
                 ],
@@ -76,14 +80,14 @@ class MiniPlayerState extends ConsumerState<MiniPlayer>
                 children: [
                   IconButton(
                       onPressed: () {
-                        routineSession.togglePause();
+                        routineSessionNotifier.togglePause();
                       },
                       icon: Icon(isRunning
                           ? Icons.pause_rounded
                           : Icons.play_arrow_rounded)),
                   IconButton(
                       onPressed: () {
-                        routineSession.discardSession();
+                        routineSessionNotifier.discardSession();
                       },
                       icon: const Icon(Icons.close)),
                 ],
