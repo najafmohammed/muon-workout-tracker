@@ -6,6 +6,7 @@ import 'package:muon_workout_tracker/database/models/split.dart';
 import 'package:muon_workout_tracker/database/providers/split_provider.dart';
 import 'package:muon_workout_tracker/database/repository/split_repository.dart';
 import 'package:muon_workout_tracker/screens/select_routine.dart';
+import 'package:muon_workout_tracker/shared/snackbar.dart';
 
 class SplitForm extends ConsumerStatefulWidget {
   final Split? split;
@@ -65,22 +66,8 @@ class SplitFormState extends ConsumerState<SplitForm> {
       _formKey.currentState?.save();
 
       if (selectedRoutines.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              'Please select at least one routine',
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Theme.of(context).cardColor,
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 2),
-            action: SnackBarAction(
-              label: 'OK',
-              onPressed: () {},
-              textColor: Colors.white,
-            ),
-          ),
-        );
+        showSnackBar(context, 'Please select at least one routine');
+
         return;
       } else {
         var split = Split();

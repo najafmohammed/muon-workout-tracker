@@ -34,8 +34,9 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     final exercises = await routineProv.getOrderedExercisesFromRoutine(routine);
 
     // Load all exercises for the routine
-    final latestSets = await exerciseProv
-        .getLatestSetsForExercise(exercises[state?.currentExerciseIndex ?? 0]);
+    // final latestSets = await exerciseProv
+    //     .getLatestSetsForExercise(exercises[state?.currentExerciseIndex ?? 0]);
+
     final Map<Exercise, List<Map<String, dynamic>>> exerciseSetsMap = {};
 
     for (Exercise exercise in exercises) {
@@ -116,15 +117,9 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
         state!.currentExerciseIndex < state!.exercises.length - 1) {
       final newIndex = state!.currentExerciseIndex + 1;
 
-      // Reload the sets for the new exercise
-      final newSets = await ref
-          .read(exerciseProvider)
-          .getLatestSetsForExercise(state!.exercises[newIndex]);
-
       // Update state with the new exercise and its sets
       state = state!.copyWith(
         currentExerciseIndex: newIndex,
-        // exerciseSets: newSets,
       );
     }
   }
@@ -134,29 +129,65 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     if (state != null && state!.currentExerciseIndex > 0) {
       final newIndex = state!.currentExerciseIndex - 1;
 
-      // Reload the sets for the previous exercise
-      final newSets = await ref
-          .read(exerciseProvider)
-          .getLatestSetsForExercise(state!.exercises[newIndex]);
-
       // Update state with the new exercise and its sets
       state = state!.copyWith(
         currentExerciseIndex: newIndex,
-        // exerciseSets: newSets,
       );
 
       print('Moved to exercise $newIndex');
     }
   }
 
+  void updateSetCompletion(int setIndex, bool isCompleted) {
+    if (state == null) return;
+
+    final exercise = state!.exercises[state!.currentExerciseIndex];
+
+    // Get the current list of sets for the exercise
+    final List<Map<String, dynamic>> exerciseSets =
+        state!.exerciseSets[exercise]!;
+
+    // Update the specific set's completion status
+    exerciseSets[setIndex]['completed'] = isCompleted;
+
+    // Update the state with the modified sets
+    state = state!.copyWith(
+      exerciseSets: {
+        ...state!.exerciseSets,
+        exercise: exerciseSets,
+      },
+    );
+  }
+
   // Mark the session as finished
-  void finishSession() {
+  bool finishSession() {
     if (state != null) {
-      print('Session finished with ${state!.exercises.length} exercises');
-      state = state!.copyWith(isActive: false, isRunning: false);
-      _stopTimer(); // Stop the timer when session finishes
-      state = null; // Clear the session after finishing
+      bool areAllSetsCompleted() {
+        if (state == null) {
+          return false;
+        }
+        // Iterate through each exercise and its sets
+        for (var exerciseSets in state!.exerciseSets.values) {
+          // Check if any set in the current exercise is not completed
+          bool allCompletedForExercise =
+              exerciseSets.every((setMap) => setMap['completed'] == true);
+
+          if (!allCompletedForExercise) {
+            return false; // If any exercise has an incomplete set, return false
+          }
+        }
+        // If we reach here, all sets for all exercises are completed
+        return true;
+      }
+
+      if (areAllSetsCompleted()) {
+        state = state!.copyWith(isActive: false, isRunning: false);
+        _stopTimer(); // Stop the timer when session finishes
+        state = null; // Clear the session after finishing
+        return true;
+      }
     }
+    return false;
   }
 
   // Discard the session

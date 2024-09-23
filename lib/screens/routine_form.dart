@@ -6,6 +6,7 @@ import 'package:muon_workout_tracker/database/models/routine.dart';
 import 'package:muon_workout_tracker/database/providers/routine_provider.dart';
 import 'package:muon_workout_tracker/database/repository/routine_respository.dart';
 import 'package:muon_workout_tracker/screens/select_exercise.dart';
+import 'package:muon_workout_tracker/shared/snackbar.dart';
 
 class RoutineForm extends ConsumerStatefulWidget {
   final Routine? routine;
@@ -64,22 +65,7 @@ class RoutineFormState extends ConsumerState<RoutineForm> {
       _formKey.currentState?.save();
 
       if (selectedExercises.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              'Please select at least one routine',
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Theme.of(context).cardColor,
-            behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 2),
-            action: SnackBarAction(
-              label: 'OK',
-              onPressed: () {},
-              textColor: Colors.white,
-            ),
-          ),
-        );
+        showSnackBar(context, 'Please select at least one exercise');
         return;
       } else {
         var routine = Routine();

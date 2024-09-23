@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:muon_workout_tracker/database/models/exercise_set.dart';
 import 'package:muon_workout_tracker/database/providers/routine_session_provider.dart';
 import 'package:muon_workout_tracker/screens/exercise_playlist.dart';
 import 'package:muon_workout_tracker/shared/set_builder.dart';
+import 'package:muon_workout_tracker/shared/snackbar.dart';
 import 'package:muon_workout_tracker/shared/wrappers/card_wrapper.dart';
 
 class ExpandedMiniPlayer extends ConsumerStatefulWidget {
@@ -24,10 +26,16 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
         .first
         .padLeft(8, "0");
     final isPlaying = routineSession?.isRunning ?? false;
+
+    // Get the current exercise
+    final currentExercise = routineSessionNotifier.currentExercise;
+    // Get the sets for the current exercise
+    final currentExerciseSets =
+        routineSessionNotifier.exerciseSets[currentExercise];
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-            routineSessionNotifier.currentExercise?.name ?? "Exercise name"),
+        title: Text(currentExercise?.name ?? "Exercise name"),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.keyboard_arrow_down_rounded),
@@ -49,15 +57,18 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: CardWrapper(
                 children: [
+                  // Pass the current exercise sets to SetBuilder
                   SetBuilder(
-                    // setsWithCompletion: routineSession!.exerciseSets.entries
-                    //     .toList()[routineSession.currentExerciseIndex],
-                    // setsWithCompletion: [],
+                    onNextExercise: () => routineSessionNotifier.nextExercise(),
                     isRunMode: true,
-                    onNextExercise: () {
-                      routineSessionNotifier.nextExercise();
-                    },
-                    sets: [],
+                    completed: currentExerciseSets
+                            ?.map((entry) => entry['completed'] as bool)
+                            .toList() ??
+                        [],
+                    sets: currentExerciseSets
+                            ?.map((entry) => entry['set'] as ExerciseSet)
+                            .toList() ??
+                        [],
                   ),
                 ],
               ),
@@ -75,7 +86,15 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
               routineSessionNotifier.previousExercise();
             },
             onFinishWorkout: () {
-              routineSessionNotifier.finishSession();
+              bool result = routineSessionNotifier.finishSession();
+
+              if (result == true) {
+                showSnackBar(context, 'Session successfully finished!');
+                Navigator.pop(context);
+              } else {
+                showSnackBar(context,
+                    'You must complete all sets before finishing the session.');
+              }
             },
             onDiscardWorkout: () {
               routineSessionNotifier.discardSession();

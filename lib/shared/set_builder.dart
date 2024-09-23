@@ -4,36 +4,101 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:muon_workout_tracker/constants/styles.dart';
 import 'package:muon_workout_tracker/database/models/exercise_set.dart';
+import 'package:muon_workout_tracker/database/providers/routine_session_provider.dart';
 
-class SetBuilder extends ConsumerStatefulWidget {
+class SetBuilder extends ConsumerWidget {
   final List<ExerciseSet> sets;
   final bool isRunMode; // Determine if it's in run mode or creation mode
-  final VoidCallback? onNextExercise; // Callback when all sets are completed
+  final List<bool>?
+      completed; // List of completed status for each set in run mode
+  final VoidCallback? onNextExercise;
 
   const SetBuilder({
     super.key,
     required this.sets,
     this.isRunMode = false, // Defaults to creation mode
+    this.completed,
     this.onNextExercise,
   });
 
   @override
-  _SetBuilderState createState() => _SetBuilderState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _SetBuilderContent(
+      key: ValueKey(sets), // Force rebuild on sets change
+      sets: sets,
+      isRunMode: isRunMode,
+      completed: completed,
+      onNextExercise: onNextExercise,
+    );
+  }
 }
 
-class _SetBuilderState extends ConsumerState<SetBuilder> {
-  List<bool> completedSets = [];
+class _SetBuilderContent extends ConsumerStatefulWidget {
+  final List<ExerciseSet> sets;
+  final bool isRunMode; // Determine if it's in run mode or creation mode
+  final List<bool>?
+      completed; // List of completed status for each set in run mode
+  final VoidCallback? onNextExercise;
+
+  const _SetBuilderContent({
+    super.key,
+    required this.sets,
+    required this.isRunMode,
+    this.completed,
+    this.onNextExercise,
+  });
+
+  @override
+  _SetBuilderContentState createState() => _SetBuilderContentState();
+}
+
+class _SetBuilderContentState extends ConsumerState<_SetBuilderContent> {
+  final GlobalKey<FormBuilderFieldState> _formKey =
+      GlobalKey<FormBuilderFieldState>();
+  late List<bool> completedSets;
 
   @override
   void initState() {
     super.initState();
-    // Initialize the completedSets list with false values for each set
-    completedSets = List<bool>.filled(widget.sets.length, false);
+    _initializeCompletedSets();
+    _initializeFormValues();
+  }
+
+  void _initializeCompletedSets() {
+    completedSets = widget.isRunMode
+        ? widget.completed ?? List<bool>.filled(widget.sets.length, false)
+        : List<bool>.filled(widget.sets.length, false);
+  }
+
+  void _initializeFormValues() {
+    if (!widget.isRunMode) {
+      final initialValues = widget.sets.map((e) {
+        return ExerciseSet()
+          ..setNumber = e.setNumber
+          ..weight = e.weight
+          ..reps = e.reps;
+      }).toList();
+
+      _formKey.currentState?.didChange(initialValues);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _SetBuilderContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.sets != oldWidget.sets ||
+        widget.isRunMode != oldWidget.isRunMode) {
+      setState(() {
+        _initializeCompletedSets();
+        _initializeFormValues();
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return FormBuilderField<List<ExerciseSet>>(
+      key: _formKey,
       name: 'sets',
       initialValue: widget.sets
           .map((e) => ExerciseSet()
@@ -94,7 +159,7 @@ class _SetBuilderState extends ConsumerState<SetBuilder> {
                         keyboardType: const TextInputType.numberWithOptions(
                             decimal: true),
                         onChanged: (value) {
-                          field.value![i].weight = double.parse(value);
+                          field.value![i].weight = double.tryParse(value) ?? 0;
                           field.didChange(field.value);
                         },
                       ),
@@ -113,7 +178,7 @@ class _SetBuilderState extends ConsumerState<SetBuilder> {
                         ),
                         keyboardType: TextInputType.number,
                         onChanged: (value) {
-                          field.value![i].reps = int.parse(value);
+                          field.value![i].reps = int.tryParse(value) ?? 0;
                           field.didChange(field.value);
                         },
                       ),
@@ -127,6 +192,9 @@ class _SetBuilderState extends ConsumerState<SetBuilder> {
                               onChanged: (bool? value) {
                                 setState(() {
                                   completedSets[i] = value ?? false;
+                                  ref
+                                      .read(routineSessionProvider.notifier)
+                                      .updateSetCompletion(i, value ?? false);
                                 });
 
                                 // If all sets are completed, trigger onNextExercise
@@ -140,14 +208,14 @@ class _SetBuilderState extends ConsumerState<SetBuilder> {
                               icon: const Icon(Icons.delete),
                               onPressed: () {
                                 // Remove the set and its completion state
-                                final updatedSets =
-                                    List<ExerciseSet>.from(field.value!);
-                                updatedSets.removeAt(i);
-                                field.didChange(updatedSets);
-
-                                setState(() {
-                                  completedSets.removeAt(i);
-                                });
+                                if (i < field.value!.length) {
+                                  final updatedSets =
+                                      List<ExerciseSet>.from(field.value!);
+                                  updatedSets.removeAt(i);
+                                  field.didChange(updatedSets);
+                                  completedSets.removeAt(
+                                      i); // Only remove if within range
+                                }
                               },
                             ),
                     ),
