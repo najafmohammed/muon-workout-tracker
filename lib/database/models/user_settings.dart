@@ -11,6 +11,5 @@ class UserSettings {
   late double weight;
   final currentSplit = IsarLink<Split>();
   int currentRoutineIndex = 0; // Index of the current routine within the split
-  bool isSplitCompletedToday =
-      false; // Flag to mark if the split is done for the day
+  bool isSplitCompletedToday = false;
 }

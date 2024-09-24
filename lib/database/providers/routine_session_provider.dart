@@ -1,11 +1,15 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:muon_workout_tracker/database/models/exercise_history.dart';
 import 'package:muon_workout_tracker/database/models/exercise_set.dart';
 import 'package:muon_workout_tracker/database/models/routine_session.dart';
 import 'package:muon_workout_tracker/database/models/exercise.dart';
+import 'package:muon_workout_tracker/database/models/session_entry.dart';
 import 'package:muon_workout_tracker/database/models/split.dart';
+import 'package:muon_workout_tracker/database/models/user_settings.dart';
 import 'package:muon_workout_tracker/database/providers/exercise_provider.dart';
 import 'package:muon_workout_tracker/database/providers/routine_provider.dart';
+import 'package:muon_workout_tracker/database/providers/session_entry_repository.dart';
 import 'package:muon_workout_tracker/database/providers/split_provider.dart';
 import 'package:muon_workout_tracker/database/providers/user_settings_provider.dart';
 
@@ -15,6 +19,7 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
 
   RoutineSessionNotifier(this.ref) : super(null);
   int currentSetIndex = 0;
+
   // Start a new session with a given routine and exercises
   Future<void> start() async {
     final userSettings = ref.read(userSettingsProvider);
@@ -164,35 +169,99 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     );
   }
 
-  // Mark the session as finished
   bool finishSession() {
     if (state != null) {
+      // Function to check if all sets are completed
       bool areAllSetsCompleted() {
         if (state == null) {
           return false;
         }
-        // Iterate through each exercise and its sets
         for (var exerciseSets in state!.exerciseSets.values) {
-          // Check if any set in the current exercise is not completed
           bool allCompletedForExercise =
               exerciseSets.every((setMap) => setMap['completed'] == true);
-
           if (!allCompletedForExercise) {
-            return false; // If any exercise has an incomplete set, return false
+            return false; // Incomplete set found
           }
         }
-        // If we reach here, all sets for all exercises are completed
-        return true;
+        return true; // All sets completed
       }
 
       if (areAllSetsCompleted()) {
         state = state!.copyWith(isActive: false, isRunning: false);
-        _stopTimer(); // Stop the timer when session finishes
-        state = null; // Clear the session after finishing
+        _stopTimer(); // Stop the session timer
+
+        final sessionEntryProv = ref.read(sessionEntryProvider);
+        final userSettingsNotifier = ref.read(userSettingsProvider.notifier);
+        final userSettingsProv = ref.read(userSettingsProvider);
+        final exerciseProv = ref.read(exerciseProvider);
+
+        // Get the elapsed time from the session
+        Duration sessionDuration = elapsedTime;
+
+        // Convert duration to seconds
+        int durationSeconds = sessionDuration.inSeconds;
+
+        // Create a new routine session to save
+        SessionEntry sessionEntry = SessionEntry()
+          ..date = DateTime.now()
+          ..durationSeconds = durationSeconds // Store in seconds
+          ..volume =
+              _calculateTotalVolume() // Implement this function to sum total volume
+          ..duration = sessionDuration; // Store formatted duration as a string
+
+        // Add exercise histories to the session
+        for (var exercise in state!.exerciseSets.keys) {
+          ExerciseHistory exerciseHistory = ExerciseHistory()
+            ..date = DateTime.now()
+            ..sets = _convertToExerciseHistorySets(state!.exerciseSets[
+                exercise]!); // Convert current sets to ExerciseSet
+
+          sessionEntry.workouts.add(exerciseHistory); // Link to routine
+          exerciseProv.addExercise(exercise, exerciseHistory);
+        }
+
+        final UserSettings userSettings = UserSettings();
+
+        // Save the routine session using the repository
+        sessionEntryProv.addSessionEntry(sessionEntry);
+
+        // Update User Settings - Update routine index and check split completion
+        int routineCount =
+            userSettingsProv!.currentSplit.value?.routines.length ?? 0;
+        // Mark split as completed for the day
+        userSettings.isSplitCompletedToday = true;
+        userSettingsNotifier.markSplitAsCompleted();
+        userSettingsNotifier.updateCurrentRoutineIndex(
+            (userSettingsProv.currentRoutineIndex + 1) % routineCount);
+
         return true;
       }
     }
     return false;
+  }
+
+  double _calculateTotalVolume() {
+    double totalVolume = 0;
+    if (state != null) {
+      for (var exerciseSets in state!.exerciseSets.values) {
+        for (var set in exerciseSets) {
+          totalVolume += (set['weight'] ?? 0) * (set['reps'] ?? 0);
+        }
+      }
+    }
+    return totalVolume;
+  }
+
+// Helper function to convert current sets to ExerciseHistory sets
+  List<ExerciseSet> _convertToExerciseHistorySets(
+      List<Map<String, dynamic>> sets) {
+    return sets.map((setMap) {
+      ExerciseSet exerciseSet = setMap['set'] as ExerciseSet;
+      return ExerciseSet()
+        ..setNumber = exerciseSet.setNumber
+        ..weight = exerciseSet.weight
+        ..reps = exerciseSet.reps;
+    }).toList();
   }
 
   // Discard the session

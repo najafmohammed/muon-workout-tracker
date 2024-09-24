@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 import 'package:muon_workout_tracker/database/models/exercise_history.dart';
 import 'package:muon_workout_tracker/database/models/routine.dart';
+import 'package:muon_workout_tracker/database/models/session_entry.dart';
 import 'package:muon_workout_tracker/database/models/split.dart';
 import 'package:muon_workout_tracker/database/models/user_settings.dart';
 import 'package:path_provider/path_provider.dart';
@@ -22,7 +23,8 @@ final isarProvider = FutureProvider<Isar>((ref) async {
         SplitSchema,
         RoutineSchema,
         ExerciseHistorySchema,
-        UserSettingsSchema
+        UserSettingsSchema,
+        SessionEntrySchema
       ],
       directory: dir.path, // Set the directory for the database
       inspector: true, // Optional: Enable Isar Inspector
