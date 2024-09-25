@@ -11,23 +11,24 @@ import 'package:muon_workout_tracker/database/providers/exercise_provider.dart';
 import 'package:muon_workout_tracker/database/providers/routine_provider.dart';
 import 'package:muon_workout_tracker/database/providers/session_entry_repository.dart';
 import 'package:muon_workout_tracker/database/providers/split_provider.dart';
+import 'package:muon_workout_tracker/database/providers/timer_provider.dart';
 import 'package:muon_workout_tracker/database/providers/user_settings_provider.dart';
 
 class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
   final Ref ref;
-  Timer? _timer; // Timer instance to update elapsed time
 
   RoutineSessionNotifier(this.ref) : super(null);
   int currentSetIndex = 0;
 
   // Start a new session with a given routine and exercises
+// Start a new session with a given routine and exercises
   Future<void> start() async {
     final userSettings = ref.read(userSettingsProvider);
     if (userSettings == null) {
       print('No current split found');
       return;
     }
-    //reset index
+    // Reset index
     currentSetIndex = 0;
     final currentSplit = await userSettings.currentSplit;
     final split = ref.read(splitProvider);
@@ -39,16 +40,11 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
         .then((value) => value[userSettings.currentRoutineIndex]);
     final exercises = await routineProv.getOrderedExercisesFromRoutine(routine);
 
-    // Load all exercises for the routine
-    // final latestSets = await exerciseProv
-    //     .getLatestSetsForExercise(exercises[state?.currentExerciseIndex ?? 0]);
-
     final Map<Exercise, List<Map<String, dynamic>>> exerciseSetsMap = {};
 
     for (Exercise exercise in exercises) {
       final List<Map<String, dynamic>> setsWithCompletion = [];
 
-      // Assuming the exercise contains sets, we iterate over them
       for (ExerciseSet set
           in await exerciseProv.getLatestSetsForExercise(exercise)) {
         setsWithCompletion.add({
@@ -57,9 +53,9 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
         });
       }
 
-      // Add the exercise and its sets with completion status to the map
       exerciseSetsMap[exercise] = setsWithCompletion;
     }
+
     state = RoutineSession(
       routine: routine,
       startTime: DateTime.now(),
@@ -67,52 +63,30 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
       isActive: true,
       exercises: exercises,
       exerciseSets: exerciseSetsMap,
-      currentExerciseIndex: 0, // Start with the first exercise
+      currentExerciseIndex: 0,
     );
 
-    // Start the timer to update the elapsed time
-    _startTimer();
-  }
-
-  // Start the timer to update the state every second
-  void _startTimer() {
-    _timer?.cancel(); // Cancel any existing timer
-
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      // Update the state every second to keep track of elapsed time
-      if (state?.isRunning == true) {
-        state = state!.copyWith();
-      }
-    });
-  }
-
-  // Stop the timer when the session is paused or ends
-  void _stopTimer() {
-    _timer?.cancel();
-    _timer = null;
+    // Start the timer using the TimerProvider
+    ref.read(timerProvider.notifier).start();
   }
 
   // Toggle between pause and resume states
   void togglePause() {
     if (state != null) {
       if (state!.isRunning) {
-        // Pausing the session
         state = state!.copyWith(
           isRunning: false,
           pausedTime: DateTime.now(),
         );
-        print('Session paused');
-        _stopTimer(); // Stop the timer when paused
+        ref.read(timerProvider.notifier).pause();
       } else {
-        // Resuming the session
         state = state!.copyWith(
           isRunning: true,
           startTime: state!.startTime
               .add(DateTime.now().difference(state!.pausedTime!)),
           pausedTime: null,
         );
-        print('Session resumed');
-        _startTimer(); // Restart the timer when resumed
+        ref.read(timerProvider.notifier).resume();
       }
     }
   }
@@ -150,9 +124,10 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
 
   void updateSetCompletion(int setIndex, bool isCompleted) {
     if (state == null) return;
+
     final exercise = state!.exercises[state!.currentExerciseIndex];
-    //increment for next set
     currentSetIndex++;
+
     // Get the current list of sets for the exercise
     final List<Map<String, dynamic>> exerciseSets =
         state!.exerciseSets[exercise]!;
@@ -160,13 +135,35 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     // Update the specific set's completion status
     exerciseSets[setIndex]['completed'] = isCompleted;
 
-    // Update the state with the modified sets
+    // Recalculate progress
+    double newProgress = _calculateProgress();
+
+    // Update the state with the modified sets and new progress
     state = state!.copyWith(
       exerciseSets: {
         ...state!.exerciseSets,
         exercise: exerciseSets,
       },
+      progress: newProgress, // Set the new progress
     );
+  }
+
+  double _calculateProgress() {
+    if (state == null) return 0.0;
+
+    int totalSets = 0;
+    int completedSets = 0;
+
+    // Iterate through all exercises and their sets
+    state!.exerciseSets.forEach((exercise, sets) {
+      totalSets += sets.length; // Count total sets
+      completedSets += sets
+          .where((setMap) => setMap['completed'] == true)
+          .length; // Count completed sets
+    });
+
+    if (totalSets == 0) return 0.0; // Avoid division by zero
+    return completedSets / totalSets; // Return the progress as a ratio
   }
 
   bool finishSession() {
@@ -188,7 +185,7 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
 
       if (areAllSetsCompleted()) {
         state = state!.copyWith(isActive: false, isRunning: false);
-        _stopTimer(); // Stop the session timer
+        ref.read(timerProvider.notifier).stop(); // Stop the session timer
 
         final sessionEntryProv = ref.read(sessionEntryProvider);
         final userSettingsNotifier = ref.read(userSettingsProvider.notifier);
@@ -196,7 +193,7 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
         final exerciseProv = ref.read(exerciseProvider);
 
         // Get the elapsed time from the session
-        Duration sessionDuration = elapsedTime;
+        Duration sessionDuration = ref.read(timerProvider);
 
         // Convert duration to seconds
         int durationSeconds = sessionDuration.inSeconds;
@@ -267,8 +264,16 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
   // Discard the session
   void discardSession() {
     print('Session discarded');
-    _stopTimer(); // Stop the timer when session is discarded
+    ref
+        .read(timerProvider.notifier)
+        .stop(); // Stop the timer when session is discarded
     state = null; // Clear the session
+  }
+
+  @override
+  void dispose() {
+    ref.read(timerProvider.notifier).stop(); // Ensure timer is stopped
+    super.dispose();
   }
 
   // Helper to get the current exercise
@@ -278,24 +283,6 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
       return state!.exercises[state!.currentExerciseIndex];
     }
     return null;
-  }
-
-  double get progress {
-    if (state == null) return 0.0;
-
-    int totalSets = 0;
-    int completedSets = 0;
-
-    // Iterate through all exercises and their sets
-    state!.exerciseSets.forEach((exercise, sets) {
-      totalSets += sets.length; // Count total sets
-      completedSets += sets
-          .where((setMap) => setMap['completed'] == true)
-          .length; // Count completed sets
-    });
-
-    if (totalSets == 0) return 0.0; // Avoid division by zero
-    return completedSets / totalSets; // Return the progress as a ratio
   }
 
   Map<Exercise, List<Map<String, dynamic>>> get exerciseSets {
@@ -317,21 +304,6 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     }
 
     return null; // No more sets available
-  }
-
-  // Get elapsed time
-  Duration get elapsedTime {
-    if (state == null) return Duration.zero;
-    if (!state!.isRunning && state!.pausedTime != null) {
-      return state!.pausedTime!.difference(state!.startTime);
-    }
-    return DateTime.now().difference(state!.startTime);
-  }
-
-  @override
-  void dispose() {
-    _stopTimer(); // Ensure timer is stopped when the notifier is disposed
-    super.dispose();
   }
 }
 

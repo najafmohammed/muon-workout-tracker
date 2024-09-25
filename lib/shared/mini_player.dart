@@ -16,7 +16,9 @@ class MiniPlayerState extends ConsumerState<MiniPlayer>
 
   @override
   Widget build(BuildContext context) {
-    final isRunning = ref.watch(routineSessionProvider)?.isRunning ?? false;
+    final routineSessionProv = ref.watch(routineSessionProvider);
+    final isRunning = routineSessionProv?.isRunning ?? false;
+    final progress = routineSessionProv?.progress;
     final routineSessionNotifier = ref.watch(routineSessionProvider.notifier);
     // formatting for current set and reps
     final currentSet =
@@ -51,8 +53,7 @@ class MiniPlayerState extends ConsumerState<MiniPlayer>
         children: [
           Hero(
             tag: "Progress",
-            child:
-                LinearProgressIndicator(value: routineSessionNotifier.progress),
+            child: LinearProgressIndicator(value: progress),
           ),
           const SizedBox(
             height: 10,

@@ -14,8 +14,8 @@ class Home extends ConsumerWidget {
           centerTitle: true,
         ),
         body: const Column(children: [
-          HomeWorkoutCard(),
           StreakCard(),
+          HomeWorkoutCard(),
         ]));
   }
 }

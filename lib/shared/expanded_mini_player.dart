@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:muon_workout_tracker/database/models/exercise_set.dart';
 import 'package:muon_workout_tracker/database/providers/routine_session_provider.dart';
+import 'package:muon_workout_tracker/database/providers/timer_provider.dart';
 import 'package:muon_workout_tracker/screens/exercise_playlist.dart';
 import 'package:muon_workout_tracker/shared/set_builder.dart';
 import 'package:muon_workout_tracker/shared/snackbar.dart';
@@ -18,21 +19,13 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
   @override
   Widget build(BuildContext context) {
     // Read the session state and notifier
-    final routineSession = ref.watch(routineSessionProvider);
     final routineSessionNotifier = ref.watch(routineSessionProvider.notifier);
-    final elapsedTimeString = routineSessionNotifier.elapsedTime
-        .toString()
-        .split('.')
-        .first
-        .padLeft(8, "0");
-    final isPlaying = routineSession?.isRunning ?? false;
-
-    // Get the current exercise
+    final routineSession = ref.watch(routineSessionProvider);
     final currentExercise = routineSessionNotifier.currentExercise;
+    final progress = routineSession?.progress ?? 0.0;
     // Get the sets for the current exercise
     final currentExerciseSets =
         routineSessionNotifier.exerciseSets[currentExercise];
-
     return Scaffold(
       appBar: AppBar(
         title: Text(currentExercise?.name ?? "Exercise name"),
@@ -49,8 +42,7 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
           // Progress Indicator
           Hero(
             tag: "Progress",
-            child:
-                LinearProgressIndicator(value: routineSessionNotifier.progress),
+            child: LinearProgressIndicator(value: progress),
           ),
           // Content section
           Expanded(
@@ -58,7 +50,8 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: CardWrapper(
                 children: [
-                  // Pass the current exercise sets to SetBuilder
+                  // Isolate SetBuilder in a Consumer
+
                   SetBuilder(
                     onNextExercise: () => routineSessionNotifier.nextExercise(),
                     isRunMode: true,
@@ -70,7 +63,7 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
                             ?.map((entry) => entry['set'] as ExerciseSet)
                             .toList() ??
                         [],
-                  ),
+                  )
                 ],
               ),
             ),
@@ -108,8 +101,6 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
                     builder: (context) => const ExercisePlaylist()),
               );
             },
-            isPlaying: isPlaying,
-            elapsedTime: elapsedTimeString,
           ),
         ],
       ),
@@ -117,15 +108,13 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
   }
 }
 
-class WorkoutControls extends StatelessWidget {
+class WorkoutControls extends ConsumerStatefulWidget {
   final VoidCallback onPlayPause;
   final VoidCallback onNextExercise;
   final VoidCallback onPreviousExercise;
   final VoidCallback onFinishWorkout;
   final VoidCallback onDiscardWorkout;
   final VoidCallback onViewAllExercises;
-  final bool isPlaying; // To toggle between play and pause
-  final String elapsedTime; // Elapsed time string
 
   const WorkoutControls({
     super.key,
@@ -135,12 +124,20 @@ class WorkoutControls extends StatelessWidget {
     required this.onFinishWorkout,
     required this.onDiscardWorkout,
     required this.onViewAllExercises,
-    required this.isPlaying,
-    required this.elapsedTime,
   });
 
   @override
+  ConsumerState<WorkoutControls> createState() => _WorkoutControlsState();
+}
+
+class _WorkoutControlsState extends ConsumerState<WorkoutControls> {
+  @override
   Widget build(BuildContext context) {
+    final routineSession = ref.watch(routineSessionProvider);
+    final isPlaying = routineSession?.isRunning ?? false;
+    final timerNotifier = ref.watch(timerProvider);
+    final elapsedTimeString =
+        timerNotifier.toString().split('.').first.padLeft(8, "0");
     return CardWrapper(
       children: [
         // Elapsed Time Display
@@ -150,12 +147,12 @@ class WorkoutControls extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                elapsedTime,
+                elapsedTimeString,
                 style:
                     const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               IconButton(
-                onPressed: onViewAllExercises,
+                onPressed: widget.onViewAllExercises,
                 icon: const Icon(Icons.playlist_play),
               ),
             ],
@@ -167,17 +164,17 @@ class WorkoutControls extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.skip_previous),
-              onPressed: onPreviousExercise,
+              onPressed: widget.onPreviousExercise,
               iconSize: 30.0,
             ),
             IconButton(
               icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
               iconSize: 60.0,
-              onPressed: onPlayPause,
+              onPressed: widget.onPlayPause,
             ),
             IconButton(
               icon: const Icon(Icons.skip_next),
-              onPressed: onNextExercise,
+              onPressed: widget.onNextExercise,
               iconSize: 30.0,
             ),
           ],
@@ -187,12 +184,12 @@ class WorkoutControls extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: onFinishWorkout,
+              onPressed: widget.onFinishWorkout,
               child: const Text('Finish Workout'),
             ),
             const SizedBox(width: 20),
             ElevatedButton(
-              onPressed: onDiscardWorkout,
+              onPressed: widget.onDiscardWorkout,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
