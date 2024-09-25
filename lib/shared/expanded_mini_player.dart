@@ -28,7 +28,9 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
         routineSessionNotifier.exerciseSets[currentExercise];
     return Scaffold(
       appBar: AppBar(
-        title: Text(currentExercise?.name ?? "Exercise name"),
+        title: Hero(
+            tag: "CurrentExerciseName",
+            child: Text(currentExercise?.name ?? "Exercise name")),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.keyboard_arrow_down_rounded),
@@ -50,8 +52,6 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: CardWrapper(
                 children: [
-                  // Isolate SetBuilder in a Consumer
-
                   SetBuilder(
                     onNextExercise: () => routineSessionNotifier.nextExercise(),
                     isRunMode: true,
