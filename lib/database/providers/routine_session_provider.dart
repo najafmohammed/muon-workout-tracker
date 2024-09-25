@@ -122,7 +122,8 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     }
   }
 
-  void updateSetCompletion(int setIndex, bool isCompleted) {
+  void updateSetCompletion(
+      int setIndex, bool isCompleted, ExerciseSet exerciseSet) {
     if (state == null) return;
 
     final exercise = state!.exercises[state!.currentExerciseIndex];
@@ -134,6 +135,7 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
 
     // Update the specific set's completion status
     exerciseSets[setIndex]['completed'] = isCompleted;
+    exerciseSets[setIndex]['set'] = exerciseSet;
 
     // Recalculate progress
     double newProgress = _calculateProgress();
@@ -241,9 +243,8 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     double totalVolume = 0;
     if (state != null) {
       for (var exerciseSets in state!.exerciseSets.values) {
-        for (var set in exerciseSets) {
-          totalVolume += (set['weight'] ?? 0) * (set['reps'] ?? 0);
-        }
+        var set = exerciseSets[0]["set"] as ExerciseSet;
+        totalVolume += (set.weight) * (set.reps);
       }
     }
     return totalVolume;

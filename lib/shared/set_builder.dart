@@ -161,6 +161,7 @@ class _SetBuilderContentState extends ConsumerState<_SetBuilderContent> {
                         onChanged: (value) {
                           field.value![i].weight = double.tryParse(value) ?? 0;
                           field.didChange(field.value);
+                          completedSets[i] = false;
                         },
                       ),
                     ),
@@ -180,6 +181,7 @@ class _SetBuilderContentState extends ConsumerState<_SetBuilderContent> {
                         onChanged: (value) {
                           field.value![i].reps = int.tryParse(value) ?? 0;
                           field.didChange(field.value);
+                          completedSets[i] = false;
                         },
                       ),
                     ),
@@ -194,7 +196,8 @@ class _SetBuilderContentState extends ConsumerState<_SetBuilderContent> {
                                   completedSets[i] = value ?? false;
                                   ref
                                       .read(routineSessionProvider.notifier)
-                                      .updateSetCompletion(i, value ?? false);
+                                      .updateSetCompletion(i, value ?? false,
+                                          _formKey.currentState?.value[i]);
                                 });
 
                                 // If all sets are completed, trigger onNextExercise
