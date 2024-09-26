@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:muon_workout_tracker/database/providers/isar_provider.dart';
 import 'package:muon_workout_tracker/database/providers/routine_session_provider.dart';
 import 'package:muon_workout_tracker/screens/home.dart';
 import 'package:muon_workout_tracker/screens/profile.dart';
@@ -23,7 +24,6 @@ class NavigationState extends ConsumerState<Navigation>
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,

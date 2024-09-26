@@ -13,7 +13,7 @@ List getDaysOfWeek({bool weekDay = false}) {
     DateTime currentDay = previousSunday.add(Duration(days: i));
     weekDay
         ? daysOfWeek.add(DateFormat('E').format(currentDay))
-        : daysOfWeek.add(currentDay.day);
+        : daysOfWeek.add(currentDay);
   }
 
   return daysOfWeek;

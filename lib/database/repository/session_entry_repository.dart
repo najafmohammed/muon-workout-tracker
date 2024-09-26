@@ -47,7 +47,7 @@ class SessionEntryRepository {
     return await _isar.sessionEntrys
         .filter()
         .dateBetween(startDate, endDate) // Filter by date range
-        .sortByDateDesc() // Sort by date in descending order
+        .sortByDate() // Sort by date
         .findAll(); // Retrieve all routines within the range
   }
 }

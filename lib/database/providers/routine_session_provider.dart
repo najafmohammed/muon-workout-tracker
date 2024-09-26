@@ -9,7 +9,7 @@ import 'package:muon_workout_tracker/database/models/split.dart';
 import 'package:muon_workout_tracker/database/models/user_settings.dart';
 import 'package:muon_workout_tracker/database/providers/exercise_provider.dart';
 import 'package:muon_workout_tracker/database/providers/routine_provider.dart';
-import 'package:muon_workout_tracker/database/providers/session_entry_repository.dart';
+import 'package:muon_workout_tracker/database/providers/session_entry_provider.dart';
 import 'package:muon_workout_tracker/database/providers/split_provider.dart';
 import 'package:muon_workout_tracker/database/providers/timer_provider.dart';
 import 'package:muon_workout_tracker/database/providers/user_settings_provider.dart';
