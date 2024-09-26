@@ -22,23 +22,38 @@ const UserSettingsSchema = CollectionSchema(
       name: r'currentRoutineIndex',
       type: IsarType.long,
     ),
-    r'height': PropertySchema(
+    r'darkMode': PropertySchema(
       id: 1,
+      name: r'darkMode',
+      type: IsarType.bool,
+    ),
+    r'height': PropertySchema(
+      id: 2,
       name: r'height',
       type: IsarType.double,
     ),
     r'isSplitCompletedToday': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'isSplitCompletedToday',
       type: IsarType.bool,
     ),
+    r'notificationsEnabled': PropertySchema(
+      id: 4,
+      name: r'notificationsEnabled',
+      type: IsarType.bool,
+    ),
+    r'themeColor': PropertySchema(
+      id: 5,
+      name: r'themeColor',
+      type: IsarType.long,
+    ),
     r'username': PropertySchema(
-      id: 3,
+      id: 6,
       name: r'username',
       type: IsarType.string,
     ),
     r'weight': PropertySchema(
-      id: 4,
+      id: 7,
       name: r'weight',
       type: IsarType.double,
     )
@@ -81,10 +96,13 @@ void _userSettingsSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeLong(offsets[0], object.currentRoutineIndex);
-  writer.writeDouble(offsets[1], object.height);
-  writer.writeBool(offsets[2], object.isSplitCompletedToday);
-  writer.writeString(offsets[3], object.username);
-  writer.writeDouble(offsets[4], object.weight);
+  writer.writeBool(offsets[1], object.darkMode);
+  writer.writeDouble(offsets[2], object.height);
+  writer.writeBool(offsets[3], object.isSplitCompletedToday);
+  writer.writeBool(offsets[4], object.notificationsEnabled);
+  writer.writeLong(offsets[5], object.themeColor);
+  writer.writeString(offsets[6], object.username);
+  writer.writeDouble(offsets[7], object.weight);
 }
 
 UserSettings _userSettingsDeserialize(
@@ -95,11 +113,14 @@ UserSettings _userSettingsDeserialize(
 ) {
   final object = UserSettings();
   object.currentRoutineIndex = reader.readLong(offsets[0]);
-  object.height = reader.readDouble(offsets[1]);
+  object.darkMode = reader.readBool(offsets[1]);
+  object.height = reader.readDouble(offsets[2]);
   object.id = id;
-  object.isSplitCompletedToday = reader.readBool(offsets[2]);
-  object.username = reader.readString(offsets[3]);
-  object.weight = reader.readDouble(offsets[4]);
+  object.isSplitCompletedToday = reader.readBool(offsets[3]);
+  object.notificationsEnabled = reader.readBool(offsets[4]);
+  object.themeColor = reader.readLong(offsets[5]);
+  object.username = reader.readString(offsets[6]);
+  object.weight = reader.readDouble(offsets[7]);
   return object;
 }
 
@@ -113,12 +134,18 @@ P _userSettingsDeserializeProp<P>(
     case 0:
       return (reader.readLong(offset)) as P;
     case 1:
-      return (reader.readDouble(offset)) as P;
-    case 2:
       return (reader.readBool(offset)) as P;
+    case 2:
+      return (reader.readDouble(offset)) as P;
     case 3:
-      return (reader.readString(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 4:
+      return (reader.readBool(offset)) as P;
+    case 5:
+      return (reader.readLong(offset)) as P;
+    case 6:
+      return (reader.readString(offset)) as P;
+    case 7:
       return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -277,6 +304,16 @@ extension UserSettingsQueryFilter
     });
   }
 
+  QueryBuilder<UserSettings, UserSettings, QAfterFilterCondition>
+      darkModeEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'darkMode',
+        value: value,
+      ));
+    });
+  }
+
   QueryBuilder<UserSettings, UserSettings, QAfterFilterCondition> heightEqualTo(
     double value, {
     double epsilon = Query.epsilon,
@@ -400,6 +437,72 @@ extension UserSettingsQueryFilter
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isSplitCompletedToday',
         value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QAfterFilterCondition>
+      notificationsEnabledEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'notificationsEnabled',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QAfterFilterCondition>
+      themeColorEqualTo(int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'themeColor',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QAfterFilterCondition>
+      themeColorGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'themeColor',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QAfterFilterCondition>
+      themeColorLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'themeColor',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QAfterFilterCondition>
+      themeColorBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'themeColor',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
       ));
     });
   }
@@ -641,6 +744,18 @@ extension UserSettingsQuerySortBy
     });
   }
 
+  QueryBuilder<UserSettings, UserSettings, QAfterSortBy> sortByDarkMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'darkMode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QAfterSortBy> sortByDarkModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'darkMode', Sort.desc);
+    });
+  }
+
   QueryBuilder<UserSettings, UserSettings, QAfterSortBy> sortByHeight() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'height', Sort.asc);
@@ -664,6 +779,33 @@ extension UserSettingsQuerySortBy
       sortByIsSplitCompletedTodayDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isSplitCompletedToday', Sort.desc);
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QAfterSortBy>
+      sortByNotificationsEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notificationsEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QAfterSortBy>
+      sortByNotificationsEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notificationsEnabled', Sort.desc);
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QAfterSortBy> sortByThemeColor() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'themeColor', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QAfterSortBy>
+      sortByThemeColorDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'themeColor', Sort.desc);
     });
   }
 
@@ -708,6 +850,18 @@ extension UserSettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<UserSettings, UserSettings, QAfterSortBy> thenByDarkMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'darkMode', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QAfterSortBy> thenByDarkModeDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'darkMode', Sort.desc);
+    });
+  }
+
   QueryBuilder<UserSettings, UserSettings, QAfterSortBy> thenByHeight() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'height', Sort.asc);
@@ -746,6 +900,33 @@ extension UserSettingsQuerySortThenBy
     });
   }
 
+  QueryBuilder<UserSettings, UserSettings, QAfterSortBy>
+      thenByNotificationsEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notificationsEnabled', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QAfterSortBy>
+      thenByNotificationsEnabledDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'notificationsEnabled', Sort.desc);
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QAfterSortBy> thenByThemeColor() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'themeColor', Sort.asc);
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QAfterSortBy>
+      thenByThemeColorDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'themeColor', Sort.desc);
+    });
+  }
+
   QueryBuilder<UserSettings, UserSettings, QAfterSortBy> thenByUsername() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'username', Sort.asc);
@@ -780,6 +961,12 @@ extension UserSettingsQueryWhereDistinct
     });
   }
 
+  QueryBuilder<UserSettings, UserSettings, QDistinct> distinctByDarkMode() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'darkMode');
+    });
+  }
+
   QueryBuilder<UserSettings, UserSettings, QDistinct> distinctByHeight() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'height');
@@ -790,6 +977,19 @@ extension UserSettingsQueryWhereDistinct
       distinctByIsSplitCompletedToday() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'isSplitCompletedToday');
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QDistinct>
+      distinctByNotificationsEnabled() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'notificationsEnabled');
+    });
+  }
+
+  QueryBuilder<UserSettings, UserSettings, QDistinct> distinctByThemeColor() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'themeColor');
     });
   }
 
@@ -822,6 +1022,12 @@ extension UserSettingsQueryProperty
     });
   }
 
+  QueryBuilder<UserSettings, bool, QQueryOperations> darkModeProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'darkMode');
+    });
+  }
+
   QueryBuilder<UserSettings, double, QQueryOperations> heightProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'height');
@@ -832,6 +1038,19 @@ extension UserSettingsQueryProperty
       isSplitCompletedTodayProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isSplitCompletedToday');
+    });
+  }
+
+  QueryBuilder<UserSettings, bool, QQueryOperations>
+      notificationsEnabledProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'notificationsEnabled');
+    });
+  }
+
+  QueryBuilder<UserSettings, int, QQueryOperations> themeColorProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'themeColor');
     });
   }
 

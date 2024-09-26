@@ -7,7 +7,6 @@ class UserSettingsRepository extends StateNotifier<UserSettings?> {
   final Isar _isar;
 
   UserSettingsRepository(this._isar) : super(null) {
-    // Initialize the user settings when the repository is created
     _initializeUserSettings();
   }
 
@@ -15,27 +14,100 @@ class UserSettingsRepository extends StateNotifier<UserSettings?> {
   Future<void> _initializeUserSettings() async {
     state = await getUserSettings();
 
-    // If no settings are found, initialize and save them
     if (state == null) {
       final newSettings = UserSettings()
         ..currentRoutineIndex = 0
         ..height = 0
         ..isSplitCompletedToday = false
         ..username = ""
-        ..weight = 0;
+        ..weight = 0
+        ..notificationsEnabled = true // Default value
+        ..darkMode = false // Default value
+        ..themeColor = 0xFF6200EE; // Default theme color
 
       await _isar.writeTxn(() async {
         await _isar.userSettings.put(newSettings);
       });
 
-      state = newSettings; // Update the state with the new settings
+      state = newSettings;
     }
   }
 
   // Fetches the user settings
   Future<UserSettings?> getUserSettings() async {
-    var settings = await _isar.userSettings.where().findFirst();
-    return settings;
+    return await _isar.userSettings.where().findFirst();
+  }
+
+  // Updates the username
+  Future<void> updateUsername(String username) async {
+    if (state != null) {
+      await _isar.writeTxn(() async {
+        state!.username = username;
+        await _isar.userSettings.put(state!);
+      });
+
+      state = await getUserSettings();
+    }
+  }
+
+  // Updates the height
+  Future<void> updateHeight(double height) async {
+    if (state != null) {
+      await _isar.writeTxn(() async {
+        state!.height = height;
+        await _isar.userSettings.put(state!);
+      });
+
+      state = await getUserSettings();
+    }
+  }
+
+  // Updates the weight
+  Future<void> updateWeight(double weight) async {
+    if (state != null) {
+      await _isar.writeTxn(() async {
+        state!.weight = weight;
+        await _isar.userSettings.put(state!);
+      });
+
+      state = await getUserSettings();
+    }
+  }
+
+  // Toggles notifications
+  Future<void> toggleNotifications(bool isEnabled) async {
+    if (state != null) {
+      await _isar.writeTxn(() async {
+        state!.notificationsEnabled = isEnabled;
+        await _isar.userSettings.put(state!);
+      });
+
+      state = await getUserSettings();
+    }
+  }
+
+  // Toggles dark mode
+  Future<void> toggleDarkMode(bool isDarkMode) async {
+    if (state != null) {
+      await _isar.writeTxn(() async {
+        state!.darkMode = isDarkMode;
+        await _isar.userSettings.put(state!);
+      });
+
+      state = await getUserSettings();
+    }
+  }
+
+  // Updates the theme color
+  Future<void> updateThemeColor(int color) async {
+    if (state != null) {
+      await _isar.writeTxn(() async {
+        state!.themeColor = color;
+        await _isar.userSettings.put(state!);
+      });
+
+      state = await getUserSettings();
+    }
   }
 
   // Updates the current split

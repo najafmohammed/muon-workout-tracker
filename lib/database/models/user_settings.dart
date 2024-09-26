@@ -12,4 +12,9 @@ class UserSettings {
   final currentSplit = IsarLink<Split>();
   int currentRoutineIndex = 0; // Index of the current routine within the split
   bool isSplitCompletedToday = false;
+
+  // Additional settings
+  bool notificationsEnabled = true; // For notifications
+  bool darkMode = true; // Dark/light mode setting
+  int themeColor = 0xFF00EEFF; // Default theme color (purple)
 }

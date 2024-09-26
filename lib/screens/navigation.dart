@@ -20,6 +20,7 @@ class NavigationState extends ConsumerState<Navigation>
   int _selectedIndex = 0;
   late AnimationController _controller;
   late Animation<Offset> _offsetAnimation;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
@@ -32,6 +33,14 @@ class NavigationState extends ConsumerState<Navigation>
     _offsetAnimation = Tween<Offset>(
       begin: const Offset(0.0, 1.0),
       end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
     ).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,
@@ -53,33 +62,44 @@ class NavigationState extends ConsumerState<Navigation>
 
   _homePages(index) =>
       const <Widget>[Home(), Workouts(), Stats(), Profile()][index];
+
   @override
   Widget build(BuildContext context) {
     final isActive = ref.watch(routineSessionProvider)?.isActive ?? false;
+
     if (isActive) {
-      _controller.forward(); // Show MiniPlayer
+      _controller.forward(); // Show MiniPlayer with fade-in effect
     } else {
-      _controller.reverse(); // Hide MiniPlayer
+      _controller.reverse(); // Hide MiniPlayer with fade-out effect
     }
+
     return Scaffold(
-        body: _homePages(_selectedIndex),
-        bottomNavigationBar: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SlideTransition(
+      body: _homePages(_selectedIndex),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Only show the MiniPlayer if isActive is true
+          Visibility(
+            visible: isActive, // This ensures it is not rendered when inactive
+            child: SlideTransition(
               position: _offsetAnimation,
-              child: const MiniPlayer(),
+              child: FadeTransition(
+                opacity:
+                    _fadeAnimation, // Control transparency during animation
+                child: const MiniPlayer(),
+              ),
             ),
-            NavigationBar(
-              labelBehavior:
-                  NavigationDestinationLabelBehavior.onlyShowSelected,
-              destinations: _navigationDestinations,
-              selectedIndex: _selectedIndex,
-              onDestinationSelected: (index) => setState(() {
-                _selectedIndex = index;
-              }),
-            ),
-          ],
-        ));
+          ),
+          NavigationBar(
+            labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+            destinations: _navigationDestinations,
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: (index) => setState(() {
+              _selectedIndex = index;
+            }),
+          ),
+        ],
+      ),
+    );
   }
 }
