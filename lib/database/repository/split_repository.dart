@@ -27,13 +27,13 @@ class SplitRepository {
         await _isar.splits.put(split);
         // Reset the link, no ideal but it just works
         await split.routines.reset();
-        // replace the exercises again
+        // Replace the exercises again
         for (int i = 0; i < routines.length; i++) {
           split.routines.add(routines[i]);
           split.orderedRoutineIds.add(routines[i].id);
         }
         split.routines.addAll(routines);
-        // Save the updated exercises
+        // Save the updated routines
         await split.routines.save();
 
         // Update the routine with linked exercises

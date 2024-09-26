@@ -30,7 +30,7 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     }
     // Reset index
     currentSetIndex = 0;
-    final currentSplit = await userSettings.currentSplit;
+    final currentSplit = userSettings.currentSplit;
     final split = ref.read(splitProvider);
     final routineProv = ref.read(routineProvider);
     final exerciseProv = ref.read(exerciseProvider);
