@@ -25,7 +25,6 @@ class HomeWorkoutCard extends ConsumerWidget {
       return routine;
     }
 
-    ;
     return CardWrapper(
       children: [
         FutureBuilder(

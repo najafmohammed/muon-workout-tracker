@@ -144,7 +144,7 @@ class RoutineFormState extends ConsumerState<RoutineForm> {
                 onChanged: (value) => _name = value!,
               ),
               const SizedBox(height: 20),
-              Text('Routines:', style: Theme.of(context).textTheme.headline6),
+              Text('Routines:', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: _openRoutineSelectionScreen,

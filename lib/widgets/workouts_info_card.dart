@@ -6,7 +6,6 @@ import 'package:muon_workout_tracker/database/models/user_settings.dart';
 import 'package:muon_workout_tracker/database/providers/split_provider.dart';
 import 'package:muon_workout_tracker/database/providers/user_settings_provider.dart';
 import 'package:muon_workout_tracker/database/repository/split_repository.dart';
-import 'package:muon_workout_tracker/database/repository/user_settings_repository.dart';
 import 'package:muon_workout_tracker/screens/select_current_split.dart';
 import 'package:muon_workout_tracker/screens/split_form.dart';
 import 'package:muon_workout_tracker/shared/wrappers/card_wrapper.dart';

@@ -43,6 +43,7 @@ dependencies:
   flutter_form_builder: ^9.2.1
   animations: ^2.0.1
   form_builder_validators: ^9.1.0
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:

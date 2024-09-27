@@ -21,8 +21,8 @@ class UserSettingsRepository extends StateNotifier<UserSettings?> {
         ..isSplitCompletedToday = false
         ..username = ""
         ..weight = 0
-        ..notificationsEnabled = true // Default value
-        ..darkMode = false // Default value
+        ..notificationsEnabled = false // Default value
+        ..darkMode = true // Default value
         ..themeColor = 0xFF6200EE; // Default theme color
 
       await _isar.writeTxn(() async {
