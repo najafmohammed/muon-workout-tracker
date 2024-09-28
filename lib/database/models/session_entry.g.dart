@@ -22,18 +22,13 @@ const SessionEntrySchema = CollectionSchema(
       name: r'date',
       type: IsarType.dateTime,
     ),
-    r'duration_seconds': PropertySchema(
+    r'duration': PropertySchema(
       id: 1,
-      name: r'duration_seconds',
+      name: r'duration',
       type: IsarType.long,
     ),
-    r'formattedDuration': PropertySchema(
-      id: 2,
-      name: r'formattedDuration',
-      type: IsarType.string,
-    ),
     r'volume': PropertySchema(
-      id: 3,
+      id: 2,
       name: r'volume',
       type: IsarType.double,
     )
@@ -79,7 +74,6 @@ int _sessionEntryEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  bytesCount += 3 + object.formattedDuration.length * 3;
   return bytesCount;
 }
 
@@ -90,9 +84,8 @@ void _sessionEntrySerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeDateTime(offsets[0], object.date);
-  writer.writeLong(offsets[1], object.durationSeconds);
-  writer.writeString(offsets[2], object.formattedDuration);
-  writer.writeDouble(offsets[3], object.volume);
+  writer.writeLong(offsets[1], object.duration);
+  writer.writeDouble(offsets[2], object.volume);
 }
 
 SessionEntry _sessionEntryDeserialize(
@@ -103,9 +96,9 @@ SessionEntry _sessionEntryDeserialize(
 ) {
   final object = SessionEntry();
   object.date = reader.readDateTime(offsets[0]);
-  object.durationSeconds = reader.readLong(offsets[1]);
+  object.duration = reader.readLong(offsets[1]);
   object.id = id;
-  object.volume = reader.readDouble(offsets[3]);
+  object.volume = reader.readDouble(offsets[2]);
   return object;
 }
 
@@ -121,8 +114,6 @@ P _sessionEntryDeserializeProp<P>(
     case 1:
       return (reader.readLong(offset)) as P;
     case 2:
-      return (reader.readString(offset)) as P;
-    case 3:
       return (reader.readDouble(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -378,45 +369,45 @@ extension SessionEntryQueryFilter
   }
 
   QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
-      durationSecondsEqualTo(int value) {
+      durationEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'duration_seconds',
+        property: r'duration',
         value: value,
       ));
     });
   }
 
   QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
-      durationSecondsGreaterThan(
+      durationGreaterThan(
     int value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
-        property: r'duration_seconds',
+        property: r'duration',
         value: value,
       ));
     });
   }
 
   QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
-      durationSecondsLessThan(
+      durationLessThan(
     int value, {
     bool include = false,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
-        property: r'duration_seconds',
+        property: r'duration',
         value: value,
       ));
     });
   }
 
   QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
-      durationSecondsBetween(
+      durationBetween(
     int lower,
     int upper, {
     bool includeLower = true,
@@ -424,147 +415,11 @@ extension SessionEntryQueryFilter
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
-        property: r'duration_seconds',
+        property: r'duration',
         lower: lower,
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
-      formattedDurationEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'formattedDuration',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
-      formattedDurationGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'formattedDuration',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
-      formattedDurationLessThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'formattedDuration',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
-      formattedDurationBetween(
-    String lower,
-    String upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'formattedDuration',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
-      formattedDurationStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'formattedDuration',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
-      formattedDurationEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'formattedDuration',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
-      formattedDurationContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'formattedDuration',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
-      formattedDurationMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'formattedDuration',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
-      formattedDurationIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'formattedDuration',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
-      formattedDurationIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'formattedDuration',
-        value: '',
       ));
     });
   }
@@ -768,31 +623,15 @@ extension SessionEntryQuerySortBy
     });
   }
 
-  QueryBuilder<SessionEntry, SessionEntry, QAfterSortBy>
-      sortByDurationSeconds() {
+  QueryBuilder<SessionEntry, SessionEntry, QAfterSortBy> sortByDuration() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'duration_seconds', Sort.asc);
+      return query.addSortBy(r'duration', Sort.asc);
     });
   }
 
-  QueryBuilder<SessionEntry, SessionEntry, QAfterSortBy>
-      sortByDurationSecondsDesc() {
+  QueryBuilder<SessionEntry, SessionEntry, QAfterSortBy> sortByDurationDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'duration_seconds', Sort.desc);
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QAfterSortBy>
-      sortByFormattedDuration() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'formattedDuration', Sort.asc);
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QAfterSortBy>
-      sortByFormattedDurationDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'formattedDuration', Sort.desc);
+      return query.addSortBy(r'duration', Sort.desc);
     });
   }
 
@@ -823,31 +662,15 @@ extension SessionEntryQuerySortThenBy
     });
   }
 
-  QueryBuilder<SessionEntry, SessionEntry, QAfterSortBy>
-      thenByDurationSeconds() {
+  QueryBuilder<SessionEntry, SessionEntry, QAfterSortBy> thenByDuration() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'duration_seconds', Sort.asc);
+      return query.addSortBy(r'duration', Sort.asc);
     });
   }
 
-  QueryBuilder<SessionEntry, SessionEntry, QAfterSortBy>
-      thenByDurationSecondsDesc() {
+  QueryBuilder<SessionEntry, SessionEntry, QAfterSortBy> thenByDurationDesc() {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'duration_seconds', Sort.desc);
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QAfterSortBy>
-      thenByFormattedDuration() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'formattedDuration', Sort.asc);
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QAfterSortBy>
-      thenByFormattedDurationDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'formattedDuration', Sort.desc);
+      return query.addSortBy(r'duration', Sort.desc);
     });
   }
 
@@ -884,18 +707,9 @@ extension SessionEntryQueryWhereDistinct
     });
   }
 
-  QueryBuilder<SessionEntry, SessionEntry, QDistinct>
-      distinctByDurationSeconds() {
+  QueryBuilder<SessionEntry, SessionEntry, QDistinct> distinctByDuration() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'duration_seconds');
-    });
-  }
-
-  QueryBuilder<SessionEntry, SessionEntry, QDistinct>
-      distinctByFormattedDuration({bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'formattedDuration',
-          caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'duration');
     });
   }
 
@@ -920,16 +734,9 @@ extension SessionEntryQueryProperty
     });
   }
 
-  QueryBuilder<SessionEntry, int, QQueryOperations> durationSecondsProperty() {
+  QueryBuilder<SessionEntry, int, QQueryOperations> durationProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'duration_seconds');
-    });
-  }
-
-  QueryBuilder<SessionEntry, String, QQueryOperations>
-      formattedDurationProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'formattedDuration');
+      return query.addPropertyName(r'duration');
     });
   }
 

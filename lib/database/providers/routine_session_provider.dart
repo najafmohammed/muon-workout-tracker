@@ -187,7 +187,6 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
 
       if (areAllSetsCompleted()) {
         state = state!.copyWith(isActive: false, isRunning: false);
-        ref.read(timerProvider.notifier).stop(); // Stop the session timer
 
         final sessionEntryProv = ref.read(sessionEntryProvider);
         final userSettingsNotifier = ref.read(userSettingsProvider.notifier);
@@ -199,14 +198,14 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
 
         // Convert duration to seconds
         int durationSeconds = sessionDuration.inSeconds;
+        ref.read(timerProvider.notifier).stop(); // Stop the session timer
 
         // Create a new routine session to save
         SessionEntry sessionEntry = SessionEntry()
           ..date = DateTime.now()
-          ..durationSeconds = durationSeconds // Store in seconds
           ..volume =
               _calculateTotalVolume() // Implement this function to sum total volume
-          ..duration = sessionDuration; // Store formatted duration as a string
+          ..duration = durationSeconds;
 
         // Add exercise histories to the session
         for (var exercise in state!.exerciseSets.keys) {
