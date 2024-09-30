@@ -23,7 +23,7 @@ class UserSettingsRepository extends StateNotifier<UserSettings?> {
         ..weight = 0
         ..notificationsEnabled = false // Default value
         ..darkMode = true // Default value
-        ..themeColor = 0xFF6200EE; // Default theme color
+        ..themeColor = 0xFF00EEFF; // Default theme color
 
       await _isar.writeTxn(() async {
         await _isar.userSettings.put(newSettings);

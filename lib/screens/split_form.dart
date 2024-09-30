@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:muon_workout_tracker/database/models/routine.dart';
 import 'package:muon_workout_tracker/database/models/split.dart';
 import 'package:muon_workout_tracker/database/providers/split_provider.dart';
+import 'package:muon_workout_tracker/database/providers/user_settings_provider.dart';
 import 'package:muon_workout_tracker/database/repository/split_repository.dart';
+import 'package:muon_workout_tracker/database/repository/user_settings_repository.dart';
 import 'package:muon_workout_tracker/screens/select_routine.dart';
 import 'package:muon_workout_tracker/shared/snackbar.dart';
 
@@ -61,7 +63,8 @@ class SplitFormState extends ConsumerState<SplitForm> {
     }
   }
 
-  Future<void> _submit(SplitRepository splitRepo) async {
+  Future<void> _submit(SplitRepository splitRepo,
+      UserSettingsRepository userSettingsRepo, bool hasCurrentSplit) async {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
 
@@ -79,6 +82,9 @@ class SplitFormState extends ConsumerState<SplitForm> {
 
         // Save the split with the new order of routines
         await splitRepo.addSplit(split, selectedRoutines);
+        if (!hasCurrentSplit) {
+          await userSettingsRepo.updateCurrentSplit(split);
+        }
 
         // Go back to the previous screen
         Navigator.of(context).pop();
@@ -111,15 +117,18 @@ class SplitFormState extends ConsumerState<SplitForm> {
 
   @override
   Widget build(BuildContext context) {
-    var splitRepo = ref.read(splitProvider);
+    var splitRepo = ref.watch(splitProvider);
+    var userSettingsNotifier = ref.watch(userSettingsProvider.notifier);
 
+    bool hasCurrentsplit =
+        ref.watch(userSettingsProvider)?.currentSplit.value != null;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.split != null ? 'Edit Split' : 'Create Split'),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          _submit(splitRepo);
+          _submit(splitRepo, userSettingsNotifier, hasCurrentsplit);
         },
         child: const Icon(Icons.save_rounded),
       ),
@@ -141,6 +150,17 @@ class SplitFormState extends ConsumerState<SplitForm> {
                   return null;
                 },
                 onChanged: (value) => _name = value!,
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              Text(
+                hasCurrentsplit
+                    ? ""
+                    : "This split will be set as the default if saved",
+                style: const TextStyle(
+                  color: Colors.blueGrey,
+                ),
               ),
               const SizedBox(height: 20),
               Text('Routines:', style: Theme.of(context).textTheme.titleLarge),

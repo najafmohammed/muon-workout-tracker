@@ -6,7 +6,9 @@ import 'package:muon_workout_tracker/database/models/split.dart';
 import 'package:muon_workout_tracker/database/providers/routine_session_provider.dart';
 import 'package:muon_workout_tracker/database/providers/split_provider.dart';
 import 'package:muon_workout_tracker/database/providers/user_settings_provider.dart';
+import 'package:muon_workout_tracker/shared/wrappers/accordion.dart';
 import 'package:muon_workout_tracker/shared/wrappers/card_wrapper.dart';
+import 'package:muon_workout_tracker/widgets/workout_configuration.dart';
 
 class HomeWorkoutCard extends ConsumerWidget {
   const HomeWorkoutCard({super.key});
@@ -25,55 +27,68 @@ class HomeWorkoutCard extends ConsumerWidget {
       return routine;
     }
 
-    return CardWrapper(
-      children: [
-        FutureBuilder(
-          future: getWorkoutName(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator(); // Show loading indicator while waiting
-            } else if (snapshot.hasError) {
-              return const Text('Error loading routine'); // Handle errors
-            } else if (snapshot.hasData) {
-              final workoutName = snapshot.data?.name ??
-                  'Unknown Routine'; // Fetch the routine name
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Today's Workout",
-                    style: AppTextStyle.large,
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    workoutName,
-                    style: AppTextStyle.small,
-                  ),
-                ],
-              );
-            } else {
-              return const Text(
-                  'No routine found'); // Handle case where no routine is found
-            }
-          },
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            OutlinedButton(
-              onPressed: () {
-                routineSessionNotifier.start();
-              },
-              child: const Text("Start Workout"),
-            ),
-          ],
-        ),
-      ],
+    return FutureBuilder(
+      future: getWorkoutName(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator(); // Show loading indicator while waiting
+        } else if (snapshot.hasError) {
+          return AccordionWrapper(
+              icon: const Icon(
+                Icons.error,
+                color: Colors.red,
+              ),
+              notificationTitle: 'Workout Configuration',
+              child: WorkoutConfiguration()); // Handle errors
+        } else if (snapshot.hasData) {
+          final workoutName = snapshot.data?.name ??
+              'Unknown Routine'; // Fetch the routine name
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CardWrapper(children: [
+                AccordionWrapper(
+                    icon: const Icon(
+                      Icons.check,
+                      color: Colors.green,
+                    ),
+                    notificationTitle: 'Workout Configuration',
+                    child: WorkoutConfiguration()),
+              ]),
+              CardWrapper(children: [
+                const Text(
+                  "Today's Workout",
+                  style: AppTextStyle.large,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  workoutName,
+                  style: AppTextStyle.small,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        routineSessionNotifier.start();
+                      },
+                      child: const Text("Start Workout"),
+                    ),
+                  ],
+                ),
+              ])
+            ],
+          );
+        } else {
+          return const Text(
+              'No routine found'); // Handle case where no routine is found
+        }
+      },
     );
   }
 }

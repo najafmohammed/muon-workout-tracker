@@ -13,9 +13,11 @@ class Home extends ConsumerWidget {
           title: const Text('Muon Workout Tracker'),
           centerTitle: true,
         ),
-        body: const Column(children: [
-          StreakCard(),
-          HomeWorkoutCard(),
-        ]));
+        body: const SingleChildScrollView(
+          child: Column(children: [
+            StreakCard(),
+            HomeWorkoutCard(),
+          ]),
+        ));
   }
 }
