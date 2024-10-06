@@ -1,16 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:muon_workout_tracker/widgets/advanced_stats_card.dart';
+import 'package:muon_workout_tracker/widgets/history_card.dart';
+import 'package:muon_workout_tracker/widgets/recent_session_card.dart';
+import 'package:muon_workout_tracker/widgets/total_stats_card.dart';
 
-class Stats extends StatelessWidget {
+class Stats extends ConsumerWidget {
   const Stats({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Material App Bar'),
+        title: const Text('Stats'),
       ),
-      body: const Center(
-        child: Text('Nothing yet'),
+      body: const SingleChildScrollView(
+        child: Column(
+          children: [
+            TotalStatsCard(),
+            RecentSessionCard(),
+            HistoryCard(),
+            AdvancedStatsCard()
+          ],
+        ),
       ),
     );
   }
