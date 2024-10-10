@@ -11,7 +11,6 @@ class Exercise {
   late MuscleGroup muscleGroup;
   late double increment;
   DateTime? lastRun;
-  double? maxWeights = 0;
   late int count = 0;
   final exerciseHistory = IsarLinks<ExerciseHistory>();
 }

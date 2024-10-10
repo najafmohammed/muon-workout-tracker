@@ -32,19 +32,14 @@ const ExerciseSchema = CollectionSchema(
       name: r'lastRun',
       type: IsarType.dateTime,
     ),
-    r'maxWeights': PropertySchema(
-      id: 3,
-      name: r'maxWeights',
-      type: IsarType.double,
-    ),
     r'muscleGroup': PropertySchema(
-      id: 4,
+      id: 3,
       name: r'muscleGroup',
       type: IsarType.byte,
       enumMap: _ExercisemuscleGroupEnumValueMap,
     ),
     r'name': PropertySchema(
-      id: 5,
+      id: 4,
       name: r'name',
       type: IsarType.string,
     )
@@ -89,9 +84,8 @@ void _exerciseSerialize(
   writer.writeLong(offsets[0], object.count);
   writer.writeDouble(offsets[1], object.increment);
   writer.writeDateTime(offsets[2], object.lastRun);
-  writer.writeDouble(offsets[3], object.maxWeights);
-  writer.writeByte(offsets[4], object.muscleGroup.index);
-  writer.writeString(offsets[5], object.name);
+  writer.writeByte(offsets[3], object.muscleGroup.index);
+  writer.writeString(offsets[4], object.name);
 }
 
 Exercise _exerciseDeserialize(
@@ -105,11 +99,10 @@ Exercise _exerciseDeserialize(
   object.id = id;
   object.increment = reader.readDouble(offsets[1]);
   object.lastRun = reader.readDateTimeOrNull(offsets[2]);
-  object.maxWeights = reader.readDoubleOrNull(offsets[3]);
   object.muscleGroup =
-      _ExercisemuscleGroupValueEnumMap[reader.readByteOrNull(offsets[4])] ??
+      _ExercisemuscleGroupValueEnumMap[reader.readByteOrNull(offsets[3])] ??
           MuscleGroup.abs;
-  object.name = reader.readString(offsets[5]);
+  object.name = reader.readString(offsets[4]);
   return object;
 }
 
@@ -127,11 +120,9 @@ P _exerciseDeserializeProp<P>(
     case 2:
       return (reader.readDateTimeOrNull(offset)) as P;
     case 3:
-      return (reader.readDoubleOrNull(offset)) as P;
-    case 4:
       return (_ExercisemuscleGroupValueEnumMap[reader.readByteOrNull(offset)] ??
           MuscleGroup.abs) as P;
-    case 5:
+    case 4:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -506,85 +497,6 @@ extension ExerciseQueryFilter
     });
   }
 
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> maxWeightsIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'maxWeights',
-      ));
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition>
-      maxWeightsIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'maxWeights',
-      ));
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> maxWeightsEqualTo(
-    double? value, {
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'maxWeights',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> maxWeightsGreaterThan(
-    double? value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'maxWeights',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> maxWeightsLessThan(
-    double? value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'maxWeights',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> maxWeightsBetween(
-    double? lower,
-    double? upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'maxWeights',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
   QueryBuilder<Exercise, Exercise, QAfterFilterCondition> muscleGroupEqualTo(
       MuscleGroup value) {
     return QueryBuilder.apply(this, (query) {
@@ -875,18 +787,6 @@ extension ExerciseQuerySortBy on QueryBuilder<Exercise, Exercise, QSortBy> {
     });
   }
 
-  QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByMaxWeights() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'maxWeights', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByMaxWeightsDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'maxWeights', Sort.desc);
-    });
-  }
-
   QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByMuscleGroup() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'muscleGroup', Sort.asc);
@@ -962,18 +862,6 @@ extension ExerciseQuerySortThenBy
     });
   }
 
-  QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByMaxWeights() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'maxWeights', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByMaxWeightsDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'maxWeights', Sort.desc);
-    });
-  }
-
   QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByMuscleGroup() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'muscleGroup', Sort.asc);
@@ -1019,12 +907,6 @@ extension ExerciseQueryWhereDistinct
     });
   }
 
-  QueryBuilder<Exercise, Exercise, QDistinct> distinctByMaxWeights() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'maxWeights');
-    });
-  }
-
   QueryBuilder<Exercise, Exercise, QDistinct> distinctByMuscleGroup() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'muscleGroup');
@@ -1062,12 +944,6 @@ extension ExerciseQueryProperty
   QueryBuilder<Exercise, DateTime?, QQueryOperations> lastRunProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'lastRun');
-    });
-  }
-
-  QueryBuilder<Exercise, double?, QQueryOperations> maxWeightsProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'maxWeights');
     });
   }
 

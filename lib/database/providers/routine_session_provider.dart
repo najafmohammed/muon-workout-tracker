@@ -12,6 +12,7 @@ import 'package:muon_workout_tracker/database/providers/routine_provider.dart';
 import 'package:muon_workout_tracker/database/providers/session_entry_provider.dart';
 import 'package:muon_workout_tracker/database/providers/split_provider.dart';
 import 'package:muon_workout_tracker/database/providers/timer_provider.dart';
+import 'package:muon_workout_tracker/database/providers/total_stats_provider.dart';
 import 'package:muon_workout_tracker/database/providers/user_settings_provider.dart';
 
 class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
@@ -223,6 +224,9 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
         // Save the routine session using the repository
         sessionEntryProv.addSessionEntry(sessionEntry);
 
+        // Call the new function to update total stats
+        _updateTotalStats(sessionEntry);
+
         // Update User Settings - Update routine index and check split completion
         int routineCount =
             userSettingsProv!.currentSplit.value?.routines.length ?? 0;
@@ -236,6 +240,18 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
       }
     }
     return false;
+  }
+
+  Future<void> _updateTotalStats(SessionEntry sessionEntry) async {
+    final totalStatsRepo = ref.read(totalStatsRepositoryProvider.notifier);
+    if (state != null) {
+      int totalSets = 0;
+      state!.exerciseSets.forEach((exercise, sets) {
+        totalSets += sets.length; // Count total sets
+      });
+      await totalStatsRepo.addSessionStats(
+          sessionEntry.duration, totalSets, sessionEntry.volume);
+    }
   }
 
   double _calculateTotalVolume() {

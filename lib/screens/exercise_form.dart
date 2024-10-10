@@ -80,6 +80,7 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
         ..lastRun = DateTime.now()
         ..increment = increment
         ..muscleGroup = muscleGroup;
+
       if (widget.exercise != null) {
         exercise.id = widget.exercise!.id;
         history.id = widget.exercise!.exerciseHistory.last.id;
