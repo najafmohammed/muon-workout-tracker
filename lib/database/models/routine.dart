@@ -14,4 +14,6 @@ class Routine {
 
   // Store the order of exercise ids
   late List<int> orderedExerciseIds;
+  // Store the no of times it occurs
+  late int frequency = 0;
 }

@@ -17,29 +17,34 @@ const ExerciseSchema = CollectionSchema(
   name: r'Exercise',
   id: 2972066467915231902,
   properties: {
-    r'increment': PropertySchema(
+    r'count': PropertySchema(
       id: 0,
+      name: r'count',
+      type: IsarType.long,
+    ),
+    r'increment': PropertySchema(
+      id: 1,
       name: r'increment',
       type: IsarType.double,
     ),
     r'lastRun': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'lastRun',
       type: IsarType.dateTime,
     ),
     r'maxWeights': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'maxWeights',
       type: IsarType.double,
     ),
     r'muscleGroup': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'muscleGroup',
       type: IsarType.byte,
       enumMap: _ExercisemuscleGroupEnumValueMap,
     ),
     r'name': PropertySchema(
-      id: 4,
+      id: 5,
       name: r'name',
       type: IsarType.string,
     )
@@ -81,11 +86,12 @@ void _exerciseSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDouble(offsets[0], object.increment);
-  writer.writeDateTime(offsets[1], object.lastRun);
-  writer.writeDouble(offsets[2], object.maxWeights);
-  writer.writeByte(offsets[3], object.muscleGroup.index);
-  writer.writeString(offsets[4], object.name);
+  writer.writeLong(offsets[0], object.count);
+  writer.writeDouble(offsets[1], object.increment);
+  writer.writeDateTime(offsets[2], object.lastRun);
+  writer.writeDouble(offsets[3], object.maxWeights);
+  writer.writeByte(offsets[4], object.muscleGroup.index);
+  writer.writeString(offsets[5], object.name);
 }
 
 Exercise _exerciseDeserialize(
@@ -95,14 +101,15 @@ Exercise _exerciseDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Exercise();
+  object.count = reader.readLong(offsets[0]);
   object.id = id;
-  object.increment = reader.readDouble(offsets[0]);
-  object.lastRun = reader.readDateTimeOrNull(offsets[1]);
-  object.maxWeights = reader.readDoubleOrNull(offsets[2]);
+  object.increment = reader.readDouble(offsets[1]);
+  object.lastRun = reader.readDateTimeOrNull(offsets[2]);
+  object.maxWeights = reader.readDoubleOrNull(offsets[3]);
   object.muscleGroup =
-      _ExercisemuscleGroupValueEnumMap[reader.readByteOrNull(offsets[3])] ??
+      _ExercisemuscleGroupValueEnumMap[reader.readByteOrNull(offsets[4])] ??
           MuscleGroup.abs;
-  object.name = reader.readString(offsets[4]);
+  object.name = reader.readString(offsets[5]);
   return object;
 }
 
@@ -114,15 +121,17 @@ P _exerciseDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 1:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 2:
-      return (reader.readDoubleOrNull(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 3:
+      return (reader.readDoubleOrNull(offset)) as P;
+    case 4:
       return (_ExercisemuscleGroupValueEnumMap[reader.readByteOrNull(offset)] ??
           MuscleGroup.abs) as P;
-    case 4:
+    case 5:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -261,6 +270,59 @@ extension ExerciseQueryWhere on QueryBuilder<Exercise, Exercise, QWhereClause> {
 
 extension ExerciseQueryFilter
     on QueryBuilder<Exercise, Exercise, QFilterCondition> {
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> countEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'count',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> countGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'count',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> countLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'count',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> countBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'count',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Exercise, Exercise, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -777,6 +839,18 @@ extension ExerciseQueryLinks
 }
 
 extension ExerciseQuerySortBy on QueryBuilder<Exercise, Exercise, QSortBy> {
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'count', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'count', Sort.desc);
+    });
+  }
+
   QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByIncrement() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'increment', Sort.asc);
@@ -840,6 +914,18 @@ extension ExerciseQuerySortBy on QueryBuilder<Exercise, Exercise, QSortBy> {
 
 extension ExerciseQuerySortThenBy
     on QueryBuilder<Exercise, Exercise, QSortThenBy> {
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'count', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByCountDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'count', Sort.desc);
+    });
+  }
+
   QueryBuilder<Exercise, Exercise, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -915,6 +1001,12 @@ extension ExerciseQuerySortThenBy
 
 extension ExerciseQueryWhereDistinct
     on QueryBuilder<Exercise, Exercise, QDistinct> {
+  QueryBuilder<Exercise, Exercise, QDistinct> distinctByCount() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'count');
+    });
+  }
+
   QueryBuilder<Exercise, Exercise, QDistinct> distinctByIncrement() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'increment');
@@ -952,6 +1044,12 @@ extension ExerciseQueryProperty
   QueryBuilder<Exercise, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Exercise, int, QQueryOperations> countProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'count');
     });
   }
 

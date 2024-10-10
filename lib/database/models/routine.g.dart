@@ -17,18 +17,23 @@ const RoutineSchema = CollectionSchema(
   name: r'Routine',
   id: 9144663503541703680,
   properties: {
-    r'lastRun': PropertySchema(
+    r'frequency': PropertySchema(
       id: 0,
+      name: r'frequency',
+      type: IsarType.long,
+    ),
+    r'lastRun': PropertySchema(
+      id: 1,
       name: r'lastRun',
       type: IsarType.dateTime,
     ),
     r'name': PropertySchema(
-      id: 1,
+      id: 2,
       name: r'name',
       type: IsarType.string,
     ),
     r'orderedExerciseIds': PropertySchema(
-      id: 2,
+      id: 3,
       name: r'orderedExerciseIds',
       type: IsarType.longList,
     )
@@ -71,9 +76,10 @@ void _routineSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDateTime(offsets[0], object.lastRun);
-  writer.writeString(offsets[1], object.name);
-  writer.writeLongList(offsets[2], object.orderedExerciseIds);
+  writer.writeLong(offsets[0], object.frequency);
+  writer.writeDateTime(offsets[1], object.lastRun);
+  writer.writeString(offsets[2], object.name);
+  writer.writeLongList(offsets[3], object.orderedExerciseIds);
 }
 
 Routine _routineDeserialize(
@@ -83,10 +89,11 @@ Routine _routineDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = Routine();
+  object.frequency = reader.readLong(offsets[0]);
   object.id = id;
-  object.lastRun = reader.readDateTimeOrNull(offsets[0]);
-  object.name = reader.readString(offsets[1]);
-  object.orderedExerciseIds = reader.readLongList(offsets[2]) ?? [];
+  object.lastRun = reader.readDateTimeOrNull(offsets[1]);
+  object.name = reader.readString(offsets[2]);
+  object.orderedExerciseIds = reader.readLongList(offsets[3]) ?? [];
   return object;
 }
 
@@ -98,10 +105,12 @@ P _routineDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDateTimeOrNull(offset)) as P;
+      return (reader.readLong(offset)) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (reader.readDateTimeOrNull(offset)) as P;
     case 2:
+      return (reader.readString(offset)) as P;
+    case 3:
       return (reader.readLongList(offset) ?? []) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -199,6 +208,59 @@ extension RoutineQueryWhere on QueryBuilder<Routine, Routine, QWhereClause> {
 
 extension RoutineQueryFilter
     on QueryBuilder<Routine, Routine, QFilterCondition> {
+  QueryBuilder<Routine, Routine, QAfterFilterCondition> frequencyEqualTo(
+      int value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'frequency',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Routine, Routine, QAfterFilterCondition> frequencyGreaterThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'frequency',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Routine, Routine, QAfterFilterCondition> frequencyLessThan(
+    int value, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'frequency',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<Routine, Routine, QAfterFilterCondition> frequencyBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'frequency',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+      ));
+    });
+  }
+
   QueryBuilder<Routine, Routine, QAfterFilterCondition> idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -660,6 +722,18 @@ extension RoutineQueryLinks
 }
 
 extension RoutineQuerySortBy on QueryBuilder<Routine, Routine, QSortBy> {
+  QueryBuilder<Routine, Routine, QAfterSortBy> sortByFrequency() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'frequency', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Routine, Routine, QAfterSortBy> sortByFrequencyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'frequency', Sort.desc);
+    });
+  }
+
   QueryBuilder<Routine, Routine, QAfterSortBy> sortByLastRun() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastRun', Sort.asc);
@@ -687,6 +761,18 @@ extension RoutineQuerySortBy on QueryBuilder<Routine, Routine, QSortBy> {
 
 extension RoutineQuerySortThenBy
     on QueryBuilder<Routine, Routine, QSortThenBy> {
+  QueryBuilder<Routine, Routine, QAfterSortBy> thenByFrequency() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'frequency', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Routine, Routine, QAfterSortBy> thenByFrequencyDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'frequency', Sort.desc);
+    });
+  }
+
   QueryBuilder<Routine, Routine, QAfterSortBy> thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
@@ -726,6 +812,12 @@ extension RoutineQuerySortThenBy
 
 extension RoutineQueryWhereDistinct
     on QueryBuilder<Routine, Routine, QDistinct> {
+  QueryBuilder<Routine, Routine, QDistinct> distinctByFrequency() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'frequency');
+    });
+  }
+
   QueryBuilder<Routine, Routine, QDistinct> distinctByLastRun() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'lastRun');
@@ -751,6 +843,12 @@ extension RoutineQueryProperty
   QueryBuilder<Routine, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
+    });
+  }
+
+  QueryBuilder<Routine, int, QQueryOperations> frequencyProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'frequency');
     });
   }
 
