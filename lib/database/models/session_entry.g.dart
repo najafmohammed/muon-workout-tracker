@@ -59,6 +59,12 @@ const SessionEntrySchema = CollectionSchema(
       name: r'workouts',
       target: r'ExerciseHistory',
       single: false,
+    ),
+    r'routines': LinkSchema(
+      id: -2005715345809883174,
+      name: r'routines',
+      target: r'Routine',
+      single: false,
     )
   },
   embeddedSchemas: {},
@@ -125,7 +131,7 @@ Id _sessionEntryGetId(SessionEntry object) {
 }
 
 List<IsarLinkBase<dynamic>> _sessionEntryGetLinks(SessionEntry object) {
-  return [object.workouts];
+  return [object.workouts, object.routines];
 }
 
 void _sessionEntryAttach(
@@ -133,6 +139,7 @@ void _sessionEntryAttach(
   object.id = id;
   object.workouts
       .attach(col, col.isar.collection<ExerciseHistory>(), r'workouts', id);
+  object.routines.attach(col, col.isar.collection<Routine>(), r'routines', id);
 }
 
 extension SessionEntryQueryWhereSort
@@ -605,6 +612,67 @@ extension SessionEntryQueryLinks
     return QueryBuilder.apply(this, (query) {
       return query.linkLength(
           r'workouts', lower, includeLower, upper, includeUpper);
+    });
+  }
+
+  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition> routines(
+      FilterQuery<Routine> q) {
+    return QueryBuilder.apply(this, (query) {
+      return query.link(q, r'routines');
+    });
+  }
+
+  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
+      routinesLengthEqualTo(int length) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'routines', length, true, length, true);
+    });
+  }
+
+  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
+      routinesIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'routines', 0, true, 0, true);
+    });
+  }
+
+  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
+      routinesIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'routines', 0, false, 999999, true);
+    });
+  }
+
+  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
+      routinesLengthLessThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'routines', 0, true, length, include);
+    });
+  }
+
+  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
+      routinesLengthGreaterThan(
+    int length, {
+    bool include = false,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(r'routines', length, include, 999999, true);
+    });
+  }
+
+  QueryBuilder<SessionEntry, SessionEntry, QAfterFilterCondition>
+      routinesLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.linkLength(
+          r'routines', lower, includeLower, upper, includeUpper);
     });
   }
 }

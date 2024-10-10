@@ -8,6 +8,7 @@ class RoutineSession {
   bool isActive;
   double progress;
   List<Exercise> exercises; // List of exercises in the routine
+  List<Routine> routines; // List of exercises in the routine
   Routine routine;
   int currentExerciseIndex;
   final Map<Exercise, List<Map<String, dynamic>>> exerciseSets;
@@ -23,6 +24,7 @@ class RoutineSession {
       this.currentExerciseIndex = 0,
       this.progress = 0.0,
       required this.exerciseSets,
+      required this.routines,
       this.exerciseCompletionStatus = const {},
       required this.routine});
 
@@ -34,6 +36,7 @@ class RoutineSession {
       bool? isActive,
       double? progress,
       List<Exercise>? exercises, // Update exercises if needed
+      List<Routine>? routines, // Update exercises if needed
       int? currentExerciseIndex, // Update current exercise index
       Map<Exercise, List<Map<String, dynamic>>>? exerciseSets,
       Map<int, bool>? exerciseCompletionStatus,
@@ -48,6 +51,7 @@ class RoutineSession {
       currentExerciseIndex: currentExerciseIndex ?? this.currentExerciseIndex,
       exerciseSets: exerciseSets ?? this.exerciseSets,
       progress: progress ?? this.progress,
+      routines: routines ?? this.routines,
       exerciseCompletionStatus:
           exerciseCompletionStatus ?? this.exerciseCompletionStatus,
     );

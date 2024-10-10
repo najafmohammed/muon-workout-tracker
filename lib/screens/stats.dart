@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:muon_workout_tracker/widgets/advanced_stats_card.dart';
 import 'package:muon_workout_tracker/widgets/history_card.dart';
-import 'package:muon_workout_tracker/widgets/recent_session_card.dart';
+import 'package:muon_workout_tracker/widgets/last_session_card.dart';
 import 'package:muon_workout_tracker/widgets/total_stats_card.dart';
 
 class Stats extends ConsumerWidget {
@@ -18,7 +18,7 @@ class Stats extends ConsumerWidget {
         child: Column(
           children: [
             TotalStatsCard(),
-            RecentSessionCard(),
+            LastSessionCard(),
             HistoryCard(),
             AdvancedStatsCard()
           ],

@@ -36,9 +36,11 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     final routineProv = ref.read(routineProvider);
     final exerciseProv = ref.read(exerciseProvider);
 
-    final routine = await split
+    final routines = await split
         .getOrderedRoutinesFromSplit(currentSplit.value as Split)
-        .then((value) => value[userSettings.currentRoutineIndex]);
+        .then((value) => value);
+    final routine = routines[userSettings.currentRoutineIndex];
+
     final exercises = await routineProv.getOrderedExercisesFromRoutine(routine);
 
     final Map<Exercise, List<Map<String, dynamic>>> exerciseSetsMap = {};
@@ -56,7 +58,6 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
 
       exerciseSetsMap[exercise] = setsWithCompletion;
     }
-
     state = RoutineSession(
       routine: routine,
       startTime: DateTime.now(),
@@ -65,6 +66,7 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
       exercises: exercises,
       exerciseSets: exerciseSetsMap,
       currentExerciseIndex: 0,
+      routines: routines, // Add routines to the state
     );
 
     // Start the timer using the TimerProvider
@@ -217,6 +219,10 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
 
           sessionEntry.workouts.add(exerciseHistory); // Link to routine
           exerciseProv.addExercise(exercise, exerciseHistory);
+        }
+        // Add routines to the session entry
+        for (var routine in state!.routines) {
+          sessionEntry.routines.add(routine);
         }
 
         final UserSettings userSettings = UserSettings();
