@@ -245,7 +245,7 @@ class _ProfileState extends ConsumerState<Profile> {
                         padding: const EdgeInsets.all(
                             12.0), // Increased padding for a larger clickable area
                         child: Image.asset(
-                          'assets/images/${userSettings.darkMode ? "github-dark" : "github-light"}.png',
+                          'assets/images/${userSettings.darkMode ? "github-light" : "github-dark"}.png',
                           height:
                               40, // Increased height to make the icon larger
                         ),

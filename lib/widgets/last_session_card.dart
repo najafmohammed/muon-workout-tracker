@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:muon_workout_tracker/database/models/session_entry.dart';
 import 'package:muon_workout_tracker/database/providers/session_entry_provider.dart';
+import 'package:muon_workout_tracker/shared/stats_column.dart';
 import 'package:muon_workout_tracker/shared/wrappers/card_wrapper.dart';
 import 'package:muon_workout_tracker/constants/styles.dart';
 import 'package:intl/intl.dart'; // For formatting date
@@ -48,33 +49,10 @@ class LastSessionCard extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Routine Info
-                      Row(
-                        children: [
-                          const Icon(Icons.fitness_center,
-                              color: Colors.purple, size: 30),
-                          const SizedBox(
-                              width: 8), // Spacing between icon and text
-                          Text(
-                            lastRoutine,
-                            style: AppTextStyle.medium,
-                          ),
-                        ],
-                      ),
-
-                      // Date Info
-                      Row(
-                        children: [
-                          const Icon(Icons.date_range,
-                              color: Colors.blue, size: 30),
-                          const SizedBox(
-                              width: 8), // Spacing between icon and text
-                          Text(
-                            formattedDate,
-                            style: AppTextStyle.medium,
-                          ),
-                        ],
-                      ),
+                      buildStatColumn(
+                          Icons.fitness_center, 'Workout', '$lastRoutine'),
+                      buildStatColumn(
+                          Icons.date_range, 'Date', '$formattedDate'),
                     ],
                   ),
                 ],
