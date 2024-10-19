@@ -221,9 +221,7 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
           exerciseProv.addExercise(exercise, exerciseHistory);
         }
         // Add routines to the session entry
-        for (var routine in state!.routines) {
-          sessionEntry.routines.add(routine);
-        }
+        sessionEntry.routines.add(state!.routine);
 
         final UserSettings userSettings = UserSettings();
 

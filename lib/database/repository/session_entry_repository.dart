@@ -34,12 +34,20 @@ class SessionEntryRepository {
         .findAll(); // Retrieve all routine sessions
   }
 
-  // Retrieve a specific Routine session by date
+// Retrieve a specific Routine session by date, looking at the range for the entire day
   Future<SessionEntry?> getSessionEntryByDate(DateTime date) async {
+    // First moment of the day (00:00:00.000)
+    DateTime startOfDay = DateTime(date.year, date.month, date.day, 0, 0, 0);
+
+    // Last moment of the day (23:59:59.999)
+    DateTime endOfDay =
+        DateTime(date.year, date.month, date.day, 23, 59, 59, 999);
+
+    // Search for session entries between the start and end of the selected day
     return await _isar.sessionEntrys
         .filter()
-        .dateEqualTo(date) // Filter sessions by date
-        .findFirst(); // Find the first matching session
+        .dateBetween(startOfDay, endOfDay) // Search within the full day range
+        .findFirst(); // Return the first matching session entry
   }
 
   // Retrieve all Routine sessions within a date range

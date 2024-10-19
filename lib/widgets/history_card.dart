@@ -57,11 +57,13 @@ class HistoryCard extends ConsumerWidget {
                   const Divider(thickness: 1, height: 20, color: Colors.grey),
                   const SizedBox(height: 15),
                   WorkoutCalendar(
+                    focusedDay: DateTime.now(),
                     workoutDays: workoutDays,
                     firstDay: startOfMonth,
                     lastDay: endOfMonth,
                     availableGestures: AvailableGestures.none,
                     hideNavigation: true, // Hide navigation for this page
+                    onDaySelected: (dateTime, _) {},
                   ),
                 ],
               );
