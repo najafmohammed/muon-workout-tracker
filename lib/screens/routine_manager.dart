@@ -4,6 +4,7 @@ import 'package:muon_workout_tracker/database/models/routine.dart';
 import 'package:muon_workout_tracker/database/providers/routine_provider.dart';
 import 'package:muon_workout_tracker/screens/routine_form.dart';
 import 'package:muon_workout_tracker/shared/confirm_dialog.dart';
+import 'package:muon_workout_tracker/utils/format_time_ago.dart';
 
 class RoutineManager extends ConsumerStatefulWidget {
   const RoutineManager({super.key});
@@ -72,8 +73,47 @@ class ExerciseManagerState extends ConsumerState<RoutineManager> {
                           leading: const CircleAvatar(
                             child: Icon(Icons.fitness_center),
                           ),
-                          title: Text(routine.name),
-                          subtitle: Text(routine.lastRun.toString()),
+                          title: Text(
+                            routine.name,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                  height:
+                                      4), // Add some space between title and details
+                              Row(
+                                children: [
+                                  const Icon(Icons.access_time,
+                                      size: 16, color: Colors.grey),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Last Run: ${formatTimeAgo(routine.lastRun)}',
+                                    style: const TextStyle(
+                                        fontSize: 14, color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                  height: 4), // Space between details
+                              Row(
+                                children: [
+                                  const Icon(Icons.repeat,
+                                      size: 16, color: Colors.grey),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Frequency: ${routine.frequency}',
+                                    style: const TextStyle(
+                                        fontSize: 14, color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          dense: true,
+                          isThreeLine: true,
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [

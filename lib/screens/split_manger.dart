@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:muon_workout_tracker/database/models/routine.dart';
 import 'package:muon_workout_tracker/database/models/split.dart';
 import 'package:muon_workout_tracker/database/providers/split_provider.dart';
 import 'package:muon_workout_tracker/screens/split_form.dart';
@@ -67,12 +68,34 @@ class SplitManagerState extends ConsumerState<SplitManager> {
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
                         final split = snapshot.data![index];
+                        final routines = split.routines.toList();
+                        final Routine routine;
+                        if (split.nextIndex >= 0 &&
+                            split.nextIndex < routines.length) {
+                          routine = routines[split.nextIndex];
+                          // Do something with the routine
+                        } else {
+                          routine = routines[0];
+                          // Handle the case where nextIndex is out of bounds
+                        }
+
                         return ListTile(
                           leading: const CircleAvatar(
                             child: Icon(Icons.fitness_center),
                           ),
                           title: Text(split.name),
-                          subtitle: Text(split.nextIndex.toString()),
+                          subtitle: Row(
+                            children: [
+                              const Icon(Icons.next_plan,
+                                  size: 16, color: Colors.grey),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Next Routine: ${routine.name}',
+                                style: const TextStyle(
+                                    fontSize: 14, color: Colors.grey),
+                              ),
+                            ],
+                          ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
