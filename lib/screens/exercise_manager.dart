@@ -92,7 +92,7 @@ class ExerciseManagerState extends ConsumerState<ExerciseManager> {
                                   Text(
                                     'Last Run: ${formatTimeAgo(exercise.lastRun)}',
                                     style: const TextStyle(
-                                        fontSize: 14, color: Colors.grey),
+                                        fontSize: 12, color: Colors.grey),
                                   ),
                                 ],
                               ),
@@ -104,9 +104,9 @@ class ExerciseManagerState extends ConsumerState<ExerciseManager> {
                                       size: 16, color: Colors.grey),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'Frequency: ${exercise.count}',
+                                    'Frequency: ${exercise.exerciseHistory.length}',
                                     style: const TextStyle(
-                                        fontSize: 14, color: Colors.grey),
+                                        fontSize: 12, color: Colors.grey),
                                   ),
                                 ],
                               ),

@@ -73,7 +73,6 @@ class SplitManagerState extends ConsumerState<SplitManager> {
                         if (split.nextIndex >= 0 &&
                             split.nextIndex < routines.length) {
                           routine = routines[split.nextIndex];
-                          // Do something with the routine
                         } else {
                           routine = routines[0];
                           // Handle the case where nextIndex is out of bounds
@@ -90,9 +89,9 @@ class SplitManagerState extends ConsumerState<SplitManager> {
                                   size: 16, color: Colors.grey),
                               const SizedBox(width: 4),
                               Text(
-                                'Next Routine: ${routine.name}',
+                                'Next Routisne: ${routine.name}',
                                 style: const TextStyle(
-                                    fontSize: 14, color: Colors.grey),
+                                    fontSize: 12, color: Colors.grey),
                               ),
                             ],
                           ),

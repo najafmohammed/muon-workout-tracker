@@ -92,7 +92,7 @@ class ExerciseManagerState extends ConsumerState<RoutineManager> {
                                   Text(
                                     'Last Run: ${formatTimeAgo(routine.lastRun)}',
                                     style: const TextStyle(
-                                        fontSize: 14, color: Colors.grey),
+                                        fontSize: 12, color: Colors.grey),
                                   ),
                                 ],
                               ),
@@ -106,7 +106,7 @@ class ExerciseManagerState extends ConsumerState<RoutineManager> {
                                   Text(
                                     'Frequency: ${routine.frequency}',
                                     style: const TextStyle(
-                                        fontSize: 14, color: Colors.grey),
+                                        fontSize: 12, color: Colors.grey),
                                   ),
                                 ],
                               ),

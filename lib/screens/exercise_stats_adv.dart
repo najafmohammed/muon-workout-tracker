@@ -63,8 +63,10 @@ class _ExerciseStatsScreenState extends ConsumerState<ExerciseStatsScreen> {
     final totalExercises = _exercises!.length;
 
     // Find the most performed exercise
-    final mostUsedExercise = _exercises!
-        .reduce((curr, next) => curr.count > next.count ? curr : next);
+    final mostUsedExercise = _exercises!.reduce((curr, next) =>
+        curr.exerciseHistory.length > next.exerciseHistory.length
+            ? curr
+            : next);
 
     // Find the last performed exercise
     final lastRunExercise = _exercises!.reduce((curr, next) =>
@@ -75,7 +77,8 @@ class _ExerciseStatsScreenState extends ConsumerState<ExerciseStatsScreen> {
             : next);
 
     // Sort exercises by usage count to get the top 3
-    _exercises!.sort((a, b) => b.count.compareTo(a.count));
+    _exercises!.sort(
+        (a, b) => b.exerciseHistory.length.compareTo(a.exerciseHistory.length));
     final topThreeExercises = _exercises!.take(3).toList();
 
     return Scaffold(
@@ -98,7 +101,7 @@ class _ExerciseStatsScreenState extends ConsumerState<ExerciseStatsScreen> {
             StatCard(
               title: 'Most Used Exercise',
               value:
-                  '${mostUsedExercise.name} (${mostUsedExercise.count} times)',
+                  '${mostUsedExercise.name} (${mostUsedExercise.exerciseHistory.length} times)',
               icon: Icons.repeat,
             ),
             const SizedBox(height: 8),
@@ -154,7 +157,8 @@ class _ExerciseStatsScreenState extends ConsumerState<ExerciseStatsScreen> {
                           const SizedBox(height: 8),
                           Text('Muscle Group: ${exercise.muscleGroup.name}'),
                           const SizedBox(height: 4),
-                          Text('Performed: ${exercise.count} times'),
+                          Text(
+                              'Performed: ${exercise.exerciseHistory.length} times'),
                           const SizedBox(height: 4),
                           Text(
                               'Last Run: ${exercise.lastRun != null ? exercise.lastRun!.toLocal().toString().split(' ')[0] : 'Never'}'),

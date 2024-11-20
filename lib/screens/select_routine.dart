@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:muon_workout_tracker/database/models/routine.dart';
 import 'package:muon_workout_tracker/database/providers/routine_provider.dart';
+import 'package:muon_workout_tracker/utils/format_time_ago.dart';
 
 class SelectRoutineScreen extends ConsumerStatefulWidget {
   const SelectRoutineScreen({
@@ -92,7 +93,7 @@ class _SelectRoutineScreenState extends ConsumerState<SelectRoutineScreen> {
 
                       return ListTile(
                         title: Text(exercise.name),
-                        subtitle: Text(exercise.lastRun.toString()),
+                        subtitle: Text(formatTimeAgo(exercise.lastRun)),
                         leading: Checkbox(
                           value: isSelected,
                           onChanged: (bool? value) {
