@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:muon_workout_tracker/constants/styles.dart';
 import 'package:muon_workout_tracker/database/providers/exercise_provider.dart';
 import 'package:muon_workout_tracker/database/providers/routine_provider.dart';
 import 'package:muon_workout_tracker/database/providers/split_provider.dart';
 import 'package:muon_workout_tracker/screens/exercise_form.dart';
 import 'package:muon_workout_tracker/screens/routine_form.dart';
+import 'package:muon_workout_tracker/screens/select_current_split.dart';
 import 'package:muon_workout_tracker/screens/split_form.dart';
 
 class WorkoutConfiguration extends ConsumerWidget {
+  final String? error;
+
+  WorkoutConfiguration({super.key, this.error});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
@@ -72,15 +77,39 @@ class WorkoutConfiguration extends ConsumerWidget {
           .watch(splitProvider)
           .getAllSplitsFiltered(nameFilter: ""), // Fetch all splits
       builder: (context, snapshot) {
-        return _buildStepFromSnapshot(
-          title: 'Split',
-          snapshot: snapshot,
-          onCreatePressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const SplitForm()),
-            );
-          },
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            _buildStepFromSnapshot(
+              title: 'Split',
+              snapshot: snapshot,
+              onCreatePressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SplitForm()),
+                );
+              },
+            ),
+            if (error != null)
+              ListTile(
+                title: const Text(
+                  " Current split has no routines",
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12,
+                  ),
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.chevron_right),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SelectCurrentSplit()));
+                  },
+                ),
+              ),
+          ],
         );
       },
     );

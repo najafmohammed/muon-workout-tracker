@@ -163,7 +163,7 @@ class SplitFormState extends ConsumerState<SplitForm> {
                 ),
               ),
               const SizedBox(height: 20),
-              Text('Routines:', style: Theme.of(context).textTheme.titleLarge),
+              Text('Routines', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: _openRoutineSelectionScreen,

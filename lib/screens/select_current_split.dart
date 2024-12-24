@@ -83,8 +83,9 @@ class _SelectCurrentSplitScreenState extends ConsumerState<SelectCurrentSplit> {
                     itemBuilder: (context, index) {
                       final split = splits[index];
                       final isSelected = selectedSplit?.id == split.id;
-
+                      final lSplit = split.routines.length;
                       return ListTile(
+                        leading: const Icon(Icons.workspaces_filled),
                         title: Text(
                           split.name,
                           style: TextStyle(
@@ -93,6 +94,11 @@ class _SelectCurrentSplitScreenState extends ConsumerState<SelectCurrentSplit> {
                                 ? FontWeight.bold
                                 : FontWeight.normal,
                           ),
+                        ),
+                        subtitle: Text(
+                          '$lSplit routines found',
+                          style: TextStyle(
+                              color: lSplit == 0 ? Colors.red : Colors.white),
                         ),
                         trailing: isSelected
                             ? const Icon(

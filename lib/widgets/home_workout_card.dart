@@ -39,7 +39,9 @@ class HomeWorkoutCard extends ConsumerWidget {
                 color: Colors.red,
               ),
               notificationTitle: 'Workout Configuration',
-              child: WorkoutConfiguration()); // Handle errors
+              child: WorkoutConfiguration(
+                error: snapshot.error.toString(),
+              )); // Handle errors
         } else if (snapshot.hasData) {
           final workoutName = snapshot.data?.name ??
               'Unknown Routine'; // Fetch the routine name
