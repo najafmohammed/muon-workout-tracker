@@ -26,7 +26,6 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
   Future<void> start() async {
     final userSettings = ref.read(userSettingsProvider);
     if (userSettings == null) {
-      print('No current split found');
       return;
     }
     // Reset index
@@ -64,6 +63,7 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
       isRunning: true,
       isActive: true,
       exercises: exercises,
+      tag: List.generate(exercises.length, (index) => exercises[index].tag),
       exerciseSets: exerciseSetsMap,
       currentExerciseIndex: 0,
       routines: routines, // Add routines to the state
@@ -72,6 +72,9 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     // Start the timer using the TimerProvider
     ref.read(timerProvider.notifier).start();
   }
+
+  String getPrevTag() =>
+      state?.exercises[state!.currentExerciseIndex].tag ?? '';
 
   // Toggle between pause and resume states
   void togglePause() {
@@ -99,12 +102,19 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     if (state != null &&
         state!.currentExerciseIndex < state!.exercises.length - 1) {
       final newIndex = state!.currentExerciseIndex + 1;
-      //reset index for next set
+
+      // Update the tag for the current exercise to "Completed"
+      final updatedTags = List<String>.from(state!.tag);
+      updatedTags[state!.currentExerciseIndex] =
+          state!.tag[state!.currentExerciseIndex];
+
+      // Reset index for next set
       currentSetIndex = 0;
 
       // Update state with the new exercise and its sets
       state = state!.copyWith(
         currentExerciseIndex: newIndex,
+        tag: updatedTags,
       );
     }
   }
@@ -120,8 +130,6 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
       state = state!.copyWith(
         currentExerciseIndex: newIndex,
       );
-
-      print('Moved to exercise $newIndex');
     }
   }
 
@@ -211,12 +219,15 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
           ..duration = durationSeconds;
 
         // Add exercise histories to the session
+        var i = 0;
         for (var exercise in state!.exerciseSets.keys) {
+          exerciseProv.updateExerciseNoHistory(exercise..tag = state!.tag[i]);
           ExerciseHistory exerciseHistory = ExerciseHistory()
             ..date = DateTime.now()
             ..sets = _convertToExerciseHistorySets(state!.exerciseSets[
                 exercise]!); // Convert current sets to ExerciseSet
 
+          i++;
           sessionEntry.workouts.add(exerciseHistory); // Link to routine
           exerciseProv.addExercise(exercise, exerciseHistory);
         }
@@ -244,6 +255,24 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
       }
     }
     return false;
+  }
+
+// RoutineSessionNotifier class continued...
+
+// Method to update the tag for a specific exercise
+  void updateTag(int exerciseIndex, String newTag) {
+    if (state != null &&
+        exerciseIndex >= 0 &&
+        exerciseIndex < state!.tag.length) {
+      // Create a copy of the current tags
+      final updatedTags = List<String>.from(state!.tag);
+
+      // Update the tag for the specific exercise
+      updatedTags[exerciseIndex] = newTag;
+
+      // Update the state with the modified tags
+      state = state!.copyWith(tag: updatedTags);
+    }
   }
 
   Future<void> _updateTotalStats(SessionEntry sessionEntry) async {
@@ -283,7 +312,6 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
 
   // Discard the session
   void discardSession() {
-    print('Session discarded');
     ref
         .read(timerProvider.notifier)
         .stop(); // Stop the timer when session is discarded

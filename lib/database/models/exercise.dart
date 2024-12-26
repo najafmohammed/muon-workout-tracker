@@ -9,7 +9,7 @@ class Exercise {
   late String name;
   @enumerated
   late MuscleGroup muscleGroup;
-  late double increment;
+  late String tag = "Same";
   DateTime? lastRun;
   final exerciseHistory = IsarLinks<ExerciseHistory>();
 }

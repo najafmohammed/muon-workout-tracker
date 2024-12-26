@@ -16,16 +16,27 @@ class ExpandedMiniPlayer extends ConsumerStatefulWidget {
 }
 
 class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
+  late Map<int, String> selectedTags;
+
+  @override
+  void initState() {
+    super.initState();
+    final routineSession = ref.read(routineSessionProvider);
+    selectedTags = {
+      for (int i = 0; i < (routineSession?.exercises.length ?? 0); i++)
+        i: routineSession?.tag[i] ?? "Same",
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Read the session state and notifier
     final routineSessionNotifier = ref.watch(routineSessionProvider.notifier);
     final routineSession = ref.watch(routineSessionProvider);
     final currentExercise = routineSessionNotifier.currentExercise;
     final progress = routineSession?.progress ?? 0.0;
-    // Get the sets for the current exercise
     final currentExerciseSets =
         routineSessionNotifier.exerciseSets[currentExercise];
+    final currentIndex = routineSession?.currentExerciseIndex ?? 0;
     return Scaffold(
       appBar: AppBar(
         title: Hero(
@@ -63,7 +74,95 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
                             ?.map((entry) => entry['set'] as ExerciseSet)
                             .toList() ??
                         [],
-                  )
+                  ),
+                  Column(
+                    children: [
+                      const Divider(),
+                      const Center(
+                        child: Text(
+                          "Tag for next workout",
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      // Previous tag display
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text(
+                              "Previous Tag",
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 16),
+                            child: Text(
+                              routineSessionNotifier.getPrevTag(),
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: _getTagColor(
+                                    routineSessionNotifier.getPrevTag()),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      // Next tag selection
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ChoiceChip(
+                            label: const Text('Lighter'),
+                            selected: selectedTags[currentIndex] == 'Lighter',
+                            onSelected: (bool isSelected) {
+                              setState(() {
+                                selectedTags[currentIndex] = isSelected
+                                    ? 'Lighter'
+                                    : selectedTags[currentIndex] ?? "Same";
+                                routineSessionNotifier.updateTag(
+                                    currentIndex, selectedTags[currentIndex]!);
+                              });
+                            },
+                            selectedColor: Colors.red[600],
+                          ),
+                          ChoiceChip(
+                            label: const Text('Same'),
+                            selected: selectedTags[currentIndex] == 'Same',
+                            onSelected: (bool isSelected) {
+                              setState(() {
+                                selectedTags[currentIndex] = isSelected
+                                    ? 'Same'
+                                    : selectedTags[currentIndex] ?? "Same";
+                                routineSessionNotifier.updateTag(
+                                    currentIndex, selectedTags[currentIndex]!);
+                              });
+                            },
+                            selectedColor: Colors.blue[600],
+                          ),
+                          ChoiceChip(
+                            label: const Text('Increase'),
+                            selected: selectedTags[currentIndex] == 'Increase',
+                            onSelected: (bool isSelected) {
+                              setState(() {
+                                selectedTags[currentIndex] = isSelected
+                                    ? 'Increase'
+                                    : selectedTags[currentIndex] ?? "Same";
+                                routineSessionNotifier.updateTag(
+                                    currentIndex, selectedTags[currentIndex]!);
+                              });
+                            },
+                            selectedColor: Colors.green[600],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -105,6 +204,19 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
         ],
       ),
     );
+  }
+}
+
+Color _getTagColor(String tag) {
+  switch (tag) {
+    case 'Lighter':
+      return Colors.red[600]!;
+    case 'Same':
+      return Colors.blue[600]!;
+    case 'Increase':
+      return Colors.green[600]!;
+    default:
+      return Colors.grey; // Fallback color if the tag doesn't match
   }
 }
 

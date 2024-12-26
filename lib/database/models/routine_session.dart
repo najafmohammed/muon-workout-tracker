@@ -7,6 +7,7 @@ class RoutineSession {
   bool isRunning;
   bool isActive;
   double progress;
+  List<String> tag;
   List<Exercise> exercises; // List of exercises in the routine
   List<Routine> routines; // List of exercises in the routine
   Routine routine;
@@ -24,6 +25,7 @@ class RoutineSession {
       this.currentExerciseIndex = 0,
       this.progress = 0.0,
       required this.exerciseSets,
+      required this.tag,
       required this.routines,
       this.exerciseCompletionStatus = const {},
       required this.routine});
@@ -34,6 +36,7 @@ class RoutineSession {
       DateTime? pausedTime,
       bool? isRunning,
       bool? isActive,
+      List<String>? tag,
       double? progress,
       List<Exercise>? exercises, // Update exercises if needed
       List<Routine>? routines, // Update exercises if needed
@@ -47,6 +50,7 @@ class RoutineSession {
       pausedTime: pausedTime ?? this.pausedTime,
       isRunning: isRunning ?? this.isRunning,
       isActive: isActive ?? this.isActive,
+      tag: tag ?? this.tag,
       exercises: exercises ?? this.exercises, // Preserve or update exercises
       currentExerciseIndex: currentExerciseIndex ?? this.currentExerciseIndex,
       exerciseSets: exerciseSets ?? this.exerciseSets,

@@ -24,7 +24,6 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
   final _formKey = GlobalKey<FormBuilderState>();
   late String _name;
   late MuscleGroup _muscleGroup;
-  late double _increment;
   List<ExerciseSet> sets = [];
 
   // Add a new set with default weight and reps
@@ -51,12 +50,10 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
       // Initialize form fields with existing exercise data
       _name = widget.exercise!.name;
       _muscleGroup = widget.exercise!.muscleGroup;
-      _increment = widget.exercise!.increment;
     } else {
       // Default values for a new exercise
       _name = '';
       _muscleGroup = MuscleGroup.abs; // Default value
-      _increment = 5;
     }
   }
 
@@ -68,7 +65,6 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
       final formState = _formKey.currentState?.value;
 
       final set = (formState?['sets']);
-      final increment = double.parse(formState?['increment']);
       final muscleGroup = formState?['muscleGroup'];
       final name = formState?['name'];
       var history = ExerciseHistory()
@@ -78,7 +74,6 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
         ..exerciseHistory.add(history)
         ..name = name
         ..lastRun = DateTime.now()
-        ..increment = increment
         ..muscleGroup = muscleGroup;
 
       if (widget.exercise != null) {
@@ -141,21 +136,6 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
                               child: Text(e.name),
                             ))
                         .toList()),
-                FormBuilderTextField(
-                  name: "increment",
-                  initialValue: _increment.toString(),
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true, // No decimal point
-                  ),
-                  decoration: const InputDecoration(labelText: 'Increment'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a name';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) => _name = value!,
-                ),
                 const SizedBox(
                   height: 10,
                 ),

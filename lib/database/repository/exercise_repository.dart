@@ -68,6 +68,19 @@ class ExerciseRepository {
     }
   }
 
+  Future<bool> updateExerciseNoHistory(Exercise exercise) async {
+    try {
+      await _isar.writeTxn(() async {
+        await _isar.exercises.put(exercise);
+      });
+
+      return true;
+    } catch (e) {
+      print('Error updating exercise: $e');
+      return false;
+    }
+  }
+
   Future<bool> updateExercise(
       Exercise exercise, ExerciseHistory history) async {
     try {

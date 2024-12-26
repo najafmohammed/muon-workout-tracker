@@ -17,25 +17,25 @@ const ExerciseSchema = CollectionSchema(
   name: r'Exercise',
   id: 2972066467915231902,
   properties: {
-    r'increment': PropertySchema(
-      id: 0,
-      name: r'increment',
-      type: IsarType.double,
-    ),
     r'lastRun': PropertySchema(
-      id: 1,
+      id: 0,
       name: r'lastRun',
       type: IsarType.dateTime,
     ),
     r'muscleGroup': PropertySchema(
-      id: 2,
+      id: 1,
       name: r'muscleGroup',
       type: IsarType.byte,
       enumMap: _ExercisemuscleGroupEnumValueMap,
     ),
     r'name': PropertySchema(
-      id: 3,
+      id: 2,
       name: r'name',
+      type: IsarType.string,
+    ),
+    r'tag': PropertySchema(
+      id: 3,
+      name: r'tag',
       type: IsarType.string,
     )
   },
@@ -67,6 +67,7 @@ int _exerciseEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.name.length * 3;
+  bytesCount += 3 + object.tag.length * 3;
   return bytesCount;
 }
 
@@ -76,10 +77,10 @@ void _exerciseSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeDouble(offsets[0], object.increment);
-  writer.writeDateTime(offsets[1], object.lastRun);
-  writer.writeByte(offsets[2], object.muscleGroup.index);
-  writer.writeString(offsets[3], object.name);
+  writer.writeDateTime(offsets[0], object.lastRun);
+  writer.writeByte(offsets[1], object.muscleGroup.index);
+  writer.writeString(offsets[2], object.name);
+  writer.writeString(offsets[3], object.tag);
 }
 
 Exercise _exerciseDeserialize(
@@ -90,12 +91,12 @@ Exercise _exerciseDeserialize(
 ) {
   final object = Exercise();
   object.id = id;
-  object.increment = reader.readDouble(offsets[0]);
-  object.lastRun = reader.readDateTimeOrNull(offsets[1]);
+  object.lastRun = reader.readDateTimeOrNull(offsets[0]);
   object.muscleGroup =
-      _ExercisemuscleGroupValueEnumMap[reader.readByteOrNull(offsets[2])] ??
+      _ExercisemuscleGroupValueEnumMap[reader.readByteOrNull(offsets[1])] ??
           MuscleGroup.abs;
-  object.name = reader.readString(offsets[3]);
+  object.name = reader.readString(offsets[2]);
+  object.tag = reader.readString(offsets[3]);
   return object;
 }
 
@@ -107,12 +108,12 @@ P _exerciseDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readDouble(offset)) as P;
-    case 1:
       return (reader.readDateTimeOrNull(offset)) as P;
-    case 2:
+    case 1:
       return (_ExercisemuscleGroupValueEnumMap[reader.readByteOrNull(offset)] ??
           MuscleGroup.abs) as P;
+    case 2:
+      return (reader.readString(offset)) as P;
     case 3:
       return (reader.readString(offset)) as P;
     default:
@@ -300,68 +301,6 @@ extension ExerciseQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
-      ));
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> incrementEqualTo(
-    double value, {
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'increment',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> incrementGreaterThan(
-    double value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'increment',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> incrementLessThan(
-    double value, {
-    bool include = false,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'increment',
-        value: value,
-        epsilon: epsilon,
-      ));
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> incrementBetween(
-    double lower,
-    double upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-    double epsilon = Query.epsilon,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'increment',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        epsilon: epsilon,
       ));
     });
   }
@@ -618,6 +557,136 @@ extension ExerciseQueryFilter
       ));
     });
   }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> tagEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'tag',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> tagGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'tag',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> tagLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'tag',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> tagBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'tag',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> tagStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'tag',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> tagEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'tag',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> tagContains(
+      String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'tag',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> tagMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'tag',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> tagIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'tag',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterFilterCondition> tagIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'tag',
+        value: '',
+      ));
+    });
+  }
 }
 
 extension ExerciseQueryObject
@@ -689,18 +758,6 @@ extension ExerciseQueryLinks
 }
 
 extension ExerciseQuerySortBy on QueryBuilder<Exercise, Exercise, QSortBy> {
-  QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByIncrement() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'increment', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByIncrementDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'increment', Sort.desc);
-    });
-  }
-
   QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByLastRun() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'lastRun', Sort.asc);
@@ -736,6 +793,18 @@ extension ExerciseQuerySortBy on QueryBuilder<Exercise, Exercise, QSortBy> {
       return query.addSortBy(r'name', Sort.desc);
     });
   }
+
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByTag() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tag', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> sortByTagDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tag', Sort.desc);
+    });
+  }
 }
 
 extension ExerciseQuerySortThenBy
@@ -749,18 +818,6 @@ extension ExerciseQuerySortThenBy
   QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByIncrement() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'increment', Sort.asc);
-    });
-  }
-
-  QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByIncrementDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'increment', Sort.desc);
     });
   }
 
@@ -799,16 +856,22 @@ extension ExerciseQuerySortThenBy
       return query.addSortBy(r'name', Sort.desc);
     });
   }
+
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByTag() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tag', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Exercise, Exercise, QAfterSortBy> thenByTagDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'tag', Sort.desc);
+    });
+  }
 }
 
 extension ExerciseQueryWhereDistinct
     on QueryBuilder<Exercise, Exercise, QDistinct> {
-  QueryBuilder<Exercise, Exercise, QDistinct> distinctByIncrement() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'increment');
-    });
-  }
-
   QueryBuilder<Exercise, Exercise, QDistinct> distinctByLastRun() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'lastRun');
@@ -827,6 +890,13 @@ extension ExerciseQueryWhereDistinct
       return query.addDistinctBy(r'name', caseSensitive: caseSensitive);
     });
   }
+
+  QueryBuilder<Exercise, Exercise, QDistinct> distinctByTag(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'tag', caseSensitive: caseSensitive);
+    });
+  }
 }
 
 extension ExerciseQueryProperty
@@ -834,12 +904,6 @@ extension ExerciseQueryProperty
   QueryBuilder<Exercise, int, QQueryOperations> idProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'id');
-    });
-  }
-
-  QueryBuilder<Exercise, double, QQueryOperations> incrementProperty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'increment');
     });
   }
 
@@ -858,6 +922,12 @@ extension ExerciseQueryProperty
   QueryBuilder<Exercise, String, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
+    });
+  }
+
+  QueryBuilder<Exercise, String, QQueryOperations> tagProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'tag');
     });
   }
 }
