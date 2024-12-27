@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animations/animations.dart'; // Import the animations package
@@ -59,21 +61,29 @@ class MiniPlayerState extends ConsumerState<MiniPlayer> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Row(
                   children: [
-                    IconButton.filled(
-                      onPressed: () {},
-                      icon: const Icon(Icons.fitness_center),
-                    ),
-                    const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
                       children: [
-                        Hero(
-                          tag: "CurrentExerciseName",
-                          child: Text(
-                              routineSessionNotifier.currentExercise?.name ??
-                                  ""),
+                        IconButton(
+                          onPressed: () {},
+                          icon: AnimatedIcon(
+                            icon: const Icon(Icons.fitness_center),
+                            isCurrent:
+                                isRunning, // Use isRunning or any relevant condition
+                          ),
                         ),
-                        Text(currentSet),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Hero(
+                              tag: "CurrentExerciseName",
+                              child: Text(routineSessionNotifier
+                                      .currentExercise?.name ??
+                                  ""),
+                            ),
+                            Text(currentSet),
+                          ],
+                        ),
                       ],
                     ),
                   ],
@@ -105,5 +115,84 @@ class MiniPlayerState extends ConsumerState<MiniPlayer> {
         ],
       ),
     );
+  }
+}
+
+class AnimatedIcon extends StatefulWidget {
+  final bool isCurrent;
+  final Icon icon;
+
+  const AnimatedIcon({
+    Key? key,
+    required this.isCurrent,
+    required this.icon,
+  }) : super(key: key);
+
+  @override
+  _AnimatedIconState createState() => _AnimatedIconState();
+}
+
+class _AnimatedIconState extends State<AnimatedIcon>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(); // Continuous wave motion
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.isCurrent
+        ? AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  Transform.scale(
+                    scale:
+                        sin(_controller.value * pi) * .4 + 1.0, // Wave motion
+
+                    child: CircleAvatar(
+                      radius: 18,
+                      backgroundColor: Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withOpacity(.4),
+                    ),
+                  ),
+                  Transform.scale(
+                    scale: sin(_controller.value * pi / 2) * .5 +
+                        1.0, // Wave motion
+
+                    child: CircleAvatar(
+                      radius: 18,
+                      backgroundColor: Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withOpacity(.4),
+                    ),
+                  ),
+                  widget.icon
+                ],
+              );
+            },
+          )
+        : CircleAvatar(
+            radius: 18,
+            backgroundColor:
+                Theme.of(context).colorScheme.primaryContainer.withOpacity(.5),
+            child: widget.icon);
   }
 }
