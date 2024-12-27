@@ -246,6 +246,7 @@ class _WorkoutControlsState extends ConsumerState<WorkoutControls> {
   @override
   Widget build(BuildContext context) {
     final routineSession = ref.watch(routineSessionProvider);
+    final RoutineSessionNotifier = ref.watch(routineSessionProvider.notifier);
     final isPlaying = routineSession?.isRunning ?? false;
     final timerNotifier = ref.watch(timerProvider);
     final elapsedTimeString =
@@ -276,7 +277,10 @@ class _WorkoutControlsState extends ConsumerState<WorkoutControls> {
           children: [
             IconButton(
               icon: const Icon(Icons.skip_previous),
-              onPressed: widget.onPreviousExercise,
+              onPressed: RoutineSessionNotifier.getWorkoutPosition() ==
+                      WorkoutPosition.start
+                  ? null
+                  : widget.onPreviousExercise,
               iconSize: 30.0,
             ),
             IconButton(
@@ -286,7 +290,10 @@ class _WorkoutControlsState extends ConsumerState<WorkoutControls> {
             ),
             IconButton(
               icon: const Icon(Icons.skip_next),
-              onPressed: widget.onNextExercise,
+              onPressed: RoutineSessionNotifier.getWorkoutPosition() ==
+                      WorkoutPosition.end
+                  ? null
+                  : widget.onNextExercise,
               iconSize: 30.0,
             ),
           ],

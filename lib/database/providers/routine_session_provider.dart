@@ -15,13 +15,15 @@ import 'package:muon_workout_tracker/database/providers/timer_provider.dart';
 import 'package:muon_workout_tracker/database/providers/total_stats_provider.dart';
 import 'package:muon_workout_tracker/database/providers/user_settings_provider.dart';
 
+enum WorkoutPosition { start, middle, end }
+
 class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
   final Ref ref;
 
   RoutineSessionNotifier(this.ref) : super(null);
   int currentSetIndex = 0;
 
-  // Start a new session with a given routine and exercises
+// Start a new session with a given routine and exercises
 // Start a new session with a given routine and exercises
   Future<void> start() async {
     final userSettings = ref.read(userSettingsProvider);
@@ -71,6 +73,21 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
 
     // Start the timer using the TimerProvider
     ref.read(timerProvider.notifier).start();
+  }
+
+  WorkoutPosition getWorkoutPosition() {
+    if (state == null) return WorkoutPosition.start;
+
+    final currentIndex = state!.currentExerciseIndex;
+    final totalExercises = state!.exercises.length;
+
+    if (currentIndex == 0) {
+      return WorkoutPosition.start;
+    } else if (currentIndex == totalExercises - 1) {
+      return WorkoutPosition.end;
+    } else {
+      return WorkoutPosition.middle;
+    }
   }
 
   String getPrevTag() =>
