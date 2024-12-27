@@ -51,121 +51,128 @@ class _ExpandedMiniPlayerState extends ConsumerState<ExpandedMiniPlayer> {
         ),
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Progress Indicator
-          Hero(
-            tag: "Progress",
-            child: LinearProgressIndicator(value: progress),
-          ),
-          // Content section
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: CardWrapper(
-                children: [
-                  SetBuilder(
-                    onNextExercise: () => routineSessionNotifier.nextExercise(),
-                    isRunMode: true,
-                    completed: currentExerciseSets
-                            ?.map((entry) => entry['completed'] as bool)
-                            .toList() ??
-                        [],
-                    sets: currentExerciseSets
-                            ?.map((entry) => entry['set'] as ExerciseSet)
-                            .toList() ??
-                        [],
-                  ),
-                  Column(
-                    children: [
-                      const Divider(),
-                      const Center(
-                        child: Text(
-                          "Tag for next workout",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      // Previous tag display
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.only(left: 16),
-                            child: Text(
-                              "Previous Tag",
-                              style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w500),
-                            ),
+          Column(
+            children: [
+              Hero(
+                tag: "Progress",
+                child: LinearProgressIndicator(value: progress),
+              ),
+
+              // Content section
+              Container(
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: CardWrapper(
+                  children: [
+                    SetBuilder(
+                      onNextExercise: () =>
+                          routineSessionNotifier.nextExercise(),
+                      isRunMode: true,
+                      completed: currentExerciseSets
+                              ?.map((entry) => entry['completed'] as bool)
+                              .toList() ??
+                          [],
+                      sets: currentExerciseSets
+                              ?.map((entry) => entry['set'] as ExerciseSet)
+                              .toList() ??
+                          [],
+                    ),
+                    Column(
+                      children: [
+                        const Divider(),
+                        const Center(
+                          child: Text(
+                            "Tag for next workout",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 16),
-                            child: Text(
-                              routineSessionNotifier.getPrevTag(),
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: _getTagColor(
-                                    routineSessionNotifier.getPrevTag()),
+                        ),
+                        const SizedBox(height: 10),
+                        // Previous tag display
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(left: 16),
+                              child: Text(
+                                "Previous Tag",
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.w500),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      // Next tag selection
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ChoiceChip(
-                            label: const Text('Lighter'),
-                            selected: selectedTags[currentIndex] == 'Lighter',
-                            onSelected: (bool isSelected) {
-                              setState(() {
-                                selectedTags[currentIndex] = isSelected
-                                    ? 'Lighter'
-                                    : selectedTags[currentIndex] ?? "Same";
-                                routineSessionNotifier.updateTag(
-                                    currentIndex, selectedTags[currentIndex]!);
-                              });
-                            },
-                            selectedColor: Colors.red[600],
-                          ),
-                          ChoiceChip(
-                            label: const Text('Same'),
-                            selected: selectedTags[currentIndex] == 'Same',
-                            onSelected: (bool isSelected) {
-                              setState(() {
-                                selectedTags[currentIndex] = isSelected
-                                    ? 'Same'
-                                    : selectedTags[currentIndex] ?? "Same";
-                                routineSessionNotifier.updateTag(
-                                    currentIndex, selectedTags[currentIndex]!);
-                              });
-                            },
-                            selectedColor: Colors.blue[600],
-                          ),
-                          ChoiceChip(
-                            label: const Text('Increase'),
-                            selected: selectedTags[currentIndex] == 'Increase',
-                            onSelected: (bool isSelected) {
-                              setState(() {
-                                selectedTags[currentIndex] = isSelected
-                                    ? 'Increase'
-                                    : selectedTags[currentIndex] ?? "Same";
-                                routineSessionNotifier.updateTag(
-                                    currentIndex, selectedTags[currentIndex]!);
-                              });
-                            },
-                            selectedColor: Colors.green[600],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
+                            Padding(
+                              padding: const EdgeInsets.only(right: 16),
+                              child: Text(
+                                routineSessionNotifier.getPrevTag(),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: _getTagColor(
+                                      routineSessionNotifier.getPrevTag()),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        // Next tag selection
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ChoiceChip(
+                              label: const Text('Lighter'),
+                              selected: selectedTags[currentIndex] == 'Lighter',
+                              onSelected: (bool isSelected) {
+                                setState(() {
+                                  selectedTags[currentIndex] = isSelected
+                                      ? 'Lighter'
+                                      : selectedTags[currentIndex] ?? "Same";
+                                  routineSessionNotifier.updateTag(currentIndex,
+                                      selectedTags[currentIndex]!);
+                                });
+                              },
+                              selectedColor: Colors.red[600],
+                            ),
+                            ChoiceChip(
+                              label: const Text('Same'),
+                              selected: selectedTags[currentIndex] == 'Same',
+                              onSelected: (bool isSelected) {
+                                setState(() {
+                                  selectedTags[currentIndex] = isSelected
+                                      ? 'Same'
+                                      : selectedTags[currentIndex] ?? "Same";
+                                  routineSessionNotifier.updateTag(currentIndex,
+                                      selectedTags[currentIndex]!);
+                                });
+                              },
+                              selectedColor: Colors.blue[600],
+                            ),
+                            ChoiceChip(
+                              label: const Text('Increase'),
+                              selected:
+                                  selectedTags[currentIndex] == 'Increase',
+                              onSelected: (bool isSelected) {
+                                setState(() {
+                                  selectedTags[currentIndex] = isSelected
+                                      ? 'Increase'
+                                      : selectedTags[currentIndex] ?? "Same";
+                                  routineSessionNotifier.updateTag(currentIndex,
+                                      selectedTags[currentIndex]!);
+                                });
+                              },
+                              selectedColor: Colors.green[600],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
           // Workout Controls with Elapsed Time
           WorkoutControls(
@@ -246,7 +253,7 @@ class _WorkoutControlsState extends ConsumerState<WorkoutControls> {
   @override
   Widget build(BuildContext context) {
     final routineSession = ref.watch(routineSessionProvider);
-    final RoutineSessionNotifier = ref.watch(routineSessionProvider.notifier);
+    final routineSessionNotifier = ref.watch(routineSessionProvider.notifier);
     final isPlaying = routineSession?.isRunning ?? false;
     final timerNotifier = ref.watch(timerProvider);
     final elapsedTimeString =
@@ -254,22 +261,18 @@ class _WorkoutControlsState extends ConsumerState<WorkoutControls> {
     return CardWrapper(
       children: [
         // Elapsed Time Display
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                elapsedTimeString,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              IconButton(
-                onPressed: widget.onViewAllExercises,
-                icon: const Icon(Icons.playlist_play),
-              ),
-            ],
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              elapsedTimeString,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            IconButton(
+              onPressed: widget.onViewAllExercises,
+              icon: const Icon(Icons.playlist_play),
+            ),
+          ],
         ),
         // Play/Pause Button and Navigation Controls
         Row(
@@ -277,7 +280,7 @@ class _WorkoutControlsState extends ConsumerState<WorkoutControls> {
           children: [
             IconButton(
               icon: const Icon(Icons.skip_previous),
-              onPressed: RoutineSessionNotifier.getWorkoutPosition() ==
+              onPressed: routineSessionNotifier.getWorkoutPosition() ==
                       WorkoutPosition.start
                   ? null
                   : widget.onPreviousExercise,
@@ -290,7 +293,7 @@ class _WorkoutControlsState extends ConsumerState<WorkoutControls> {
             ),
             IconButton(
               icon: const Icon(Icons.skip_next),
-              onPressed: RoutineSessionNotifier.getWorkoutPosition() ==
+              onPressed: routineSessionNotifier.getWorkoutPosition() ==
                       WorkoutPosition.end
                   ? null
                   : widget.onNextExercise,
@@ -304,6 +307,9 @@ class _WorkoutControlsState extends ConsumerState<WorkoutControls> {
           children: [
             ElevatedButton(
               onPressed: widget.onFinishWorkout,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue.withOpacity(.2),
+              ),
               child: const Text('Finish Workout'),
             ),
             const SizedBox(width: 20),

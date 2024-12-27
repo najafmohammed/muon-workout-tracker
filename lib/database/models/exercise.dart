@@ -10,6 +10,7 @@ class Exercise {
   @enumerated
   late MuscleGroup muscleGroup;
   late String tag = "Same";
+  late String? note = "";
   DateTime? lastRun;
   final exerciseHistory = IsarLinks<ExerciseHistory>();
 }

@@ -25,6 +25,7 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
   late String _name;
   late MuscleGroup _muscleGroup;
   List<ExerciseSet> sets = [];
+  late String _note = "";
 
   // Add a new set with default weight and reps
   void _addSet() {
@@ -50,10 +51,12 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
       // Initialize form fields with existing exercise data
       _name = widget.exercise!.name;
       _muscleGroup = widget.exercise!.muscleGroup;
+      _note = widget.exercise?.note ?? "";
     } else {
       // Default values for a new exercise
       _name = '';
       _muscleGroup = MuscleGroup.abs; // Default value
+      _note = "";
     }
   }
 
@@ -67,12 +70,14 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
       final set = (formState?['sets']);
       final muscleGroup = formState?['muscleGroup'];
       final name = formState?['name'];
+      final note = formState?["note"];
       var history = ExerciseHistory()
         ..date = DateTime.now()
         ..sets = set;
       var exercise = Exercise()
         ..exerciseHistory.add(history)
         ..name = name
+        ..note = note
         ..lastRun = DateTime.now()
         ..muscleGroup = muscleGroup;
 
@@ -119,6 +124,15 @@ class ExerciseFormState extends ConsumerState<ExerciseForm> {
                     }
                     return null;
                   },
+                  onChanged: (value) => _name = value!,
+                ),
+                FormBuilderTextField(
+                  maxLines: 5,
+                  minLines: 3,
+                  name: "note",
+                  initialValue: _note,
+                  maxLength: 200,
+                  decoration: const InputDecoration(labelText: 'Note'),
                   onChanged: (value) => _name = value!,
                 ),
                 FormBuilderDropdown<MuscleGroup>(
