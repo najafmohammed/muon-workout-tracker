@@ -257,7 +257,15 @@ class RoutineSessionNotifier extends StateNotifier<RoutineSession?> {
     return false;
   }
 
-// RoutineSessionNotifier class continued...
+  // Get the current exercise's set count
+  int getCurrentExerciseSetCount() {
+    if (state == null) return 0;
+
+    final exercise = state!.exercises[state!.currentExerciseIndex];
+    final sets = state!.exerciseSets[exercise]!;
+
+    return sets.length; // Return the number of sets for the current exercise
+  }
 
 // Method to update the tag for a specific exercise
   void updateTag(int exerciseIndex, String newTag) {
