@@ -4,6 +4,7 @@ import 'package:muon_workout_tracker/database/models/split.dart';
 import 'package:muon_workout_tracker/database/providers/split_provider.dart';
 import 'package:muon_workout_tracker/screens/split_form.dart';
 import 'package:muon_workout_tracker/shared/confirm_dialog.dart';
+import 'package:muon_workout_tracker/utils/get_sort_icon.dart';
 
 class SplitManager extends ConsumerStatefulWidget {
   const SplitManager({super.key});
@@ -15,9 +16,11 @@ class SplitManager extends ConsumerStatefulWidget {
 class SplitManagerState extends ConsumerState<SplitManager> {
   final TextEditingController _textController = TextEditingController();
   String nameFilter = '';
+  String sortBy = 'name_asc'; // Default sorting option
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final splitRepo = ref.watch(splitProvider);
 
     return Scaffold(
@@ -34,6 +37,7 @@ class SplitManagerState extends ConsumerState<SplitManager> {
       ),
       body: Column(
         children: [
+          // Search TextField
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
@@ -49,9 +53,54 @@ class SplitManagerState extends ConsumerState<SplitManager> {
               ),
             ),
           ),
+          // Sort Mechanism
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Wrap(
+                  spacing: 8.0,
+                  children: [
+                    GestureDetector(
+                      onTap: () => setState(() {
+                        sortBy =
+                            sortBy == 'name_asc' ? 'name_desc' : 'name_asc';
+                      }),
+                      child: Chip(
+                        backgroundColor: theme.colorScheme.surface,
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Name',
+                              style:
+                                  TextStyle(color: theme.colorScheme.primary),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              getSortIcon(sortBy.startsWith('name')
+                                  ? sortBy
+                                  : 'name_asc'),
+                              size: 16,
+                              color: sortBy.startsWith('name')
+                                  ? theme.colorScheme.primary
+                                  : theme.iconTheme.color,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Icon(Icons.sort, size: 24, color: theme.iconTheme.color),
+              ],
+            ),
+          ),
           Expanded(
             child: StreamBuilder<List<Split>>(
-              stream: splitRepo.getAllSplitsFiltered(nameFilter: nameFilter),
+              stream: splitRepo.getAllSplitsFiltered(
+                  nameFilter: nameFilter, sortBy: sortBy),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());

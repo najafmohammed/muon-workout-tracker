@@ -12,13 +12,34 @@ class ExerciseRepository {
     return _isar.exercises.where().findAll();
   }
 
-  Stream<List<Exercise>> getAllExercisesFiltered({
-    required String nameFilter,
-  }) {
+  Stream<List<Exercise>> getAllExercisesStream() {
     return _isar.exercises
         .filter()
-        .nameContains(nameFilter)
+        .nameContains("")
         .watch(fireImmediately: true);
+  }
+
+  Stream<List<Exercise>> getAllExercisesFiltered({
+    required String nameFilter,
+    required String sortBy,
+  }) {
+    // Apply filtering and sorting
+    QueryBuilder<Exercise, Exercise, QSortBy> query = _isar.exercises
+        .where()
+        .filter()
+        .nameContains(nameFilter, caseSensitive: false);
+    switch (sortBy) {
+      case 'name_asc':
+        return query.sortByName().watch(fireImmediately: true);
+      case 'name_desc':
+        return query.sortByNameDesc().watch(fireImmediately: true);
+      case 'date_asc':
+        return query.sortByLastRun().watch(fireImmediately: true);
+      case 'date_desc':
+        return query.sortByLastRunDesc().watch(fireImmediately: true);
+    }
+
+    return query.sortByName().watch(fireImmediately: true);
   }
 
   Future<List<ExerciseSet>> getLatestSetsForExercise(Exercise exercise) async {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:muon_workout_tracker/database/models/exercise.dart';
 import 'package:muon_workout_tracker/database/providers/exercise_provider.dart';
+import 'package:muon_workout_tracker/utils/get_sort_icon.dart';
 
 class SelectExerciseScreen extends ConsumerStatefulWidget {
   const SelectExerciseScreen({
@@ -17,6 +18,9 @@ class SelectExerciseScreen extends ConsumerStatefulWidget {
 
 class _SelectExerciseScreenState extends ConsumerState<SelectExerciseScreen> {
   List<Exercise> _selectedExercises = [];
+  final TextEditingController _textController = TextEditingController();
+  String nameFilter = '';
+  String sortBy = 'name_asc'; // Default sorting option
 
   bool _isExerciseSelected(Exercise exercise) {
     return _selectedExercises.any((e) => e.id == exercise.id);
@@ -38,12 +42,10 @@ class _SelectExerciseScreenState extends ConsumerState<SelectExerciseScreen> {
     _selectedExercises = widget.alreadySelectedExercises;
   }
 
-  final TextEditingController _textController = TextEditingController();
-  String nameFilter = '';
-
   @override
   Widget build(BuildContext context) {
     final exerciseRepo = ref.watch(exerciseProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -70,10 +72,94 @@ class _SelectExerciseScreenState extends ConsumerState<SelectExerciseScreen> {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Wrap(
+                  spacing: 8.0,
+                  children: [
+                    GestureDetector(
+                      onTap: () => setState(() {
+                        sortBy =
+                            sortBy == 'name_asc' ? 'name_desc' : 'name_asc';
+                      }),
+                      child: Chip(
+                        backgroundColor: sortBy.startsWith('name')
+                            ? theme.colorScheme.primary.withOpacity(0.2)
+                            : theme.colorScheme.surface,
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Name',
+                              style: TextStyle(
+                                color: sortBy.startsWith('name')
+                                    ? theme.colorScheme.primary
+                                    : theme.textTheme.bodyMedium?.color,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              getSortIcon(sortBy.startsWith('name')
+                                  ? sortBy
+                                  : 'name_asc'),
+                              size: 16,
+                              color: sortBy.startsWith('name')
+                                  ? theme.colorScheme.primary
+                                  : theme.iconTheme.color,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => setState(() {
+                        sortBy =
+                            sortBy == 'date_asc' ? 'date_desc' : 'date_asc';
+                      }),
+                      child: Chip(
+                        backgroundColor: sortBy.startsWith('date')
+                            ? theme.colorScheme.primary.withOpacity(0.2)
+                            : theme.colorScheme.surface,
+                        label: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Date',
+                              style: TextStyle(
+                                color: sortBy.startsWith('date')
+                                    ? theme.colorScheme.primary
+                                    : theme.textTheme.bodyMedium?.color,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              getSortIcon(sortBy.startsWith('date')
+                                  ? sortBy
+                                  : 'date_asc'),
+                              size: 16,
+                              color: sortBy.startsWith('date')
+                                  ? theme.colorScheme.primary
+                                  : theme.iconTheme.color,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Icon(Icons.sort, size: 24, color: theme.iconTheme.color),
+              ],
+            ),
+          ),
           Expanded(
             child: StreamBuilder<List<Exercise>>(
-              stream:
-                  exerciseRepo.getAllExercisesFiltered(nameFilter: nameFilter),
+              stream: exerciseRepo.getAllExercisesFiltered(
+                nameFilter: nameFilter,
+                sortBy: sortBy,
+              ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());

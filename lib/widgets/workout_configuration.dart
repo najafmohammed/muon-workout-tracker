@@ -33,7 +33,7 @@ class WorkoutConfiguration extends ConsumerWidget {
     return StreamBuilder(
       stream: ref
           .watch(exerciseProvider)
-          .getAllExercisesFiltered(nameFilter: ""), // Fetch all exercises
+          .getAllExercisesStream(), // Fetch all exercises
       builder: (context, snapshot) {
         return _buildStepFromSnapshot(
           title: 'Exercise',
@@ -54,7 +54,7 @@ class WorkoutConfiguration extends ConsumerWidget {
     return StreamBuilder(
       stream: ref
           .watch(routineProvider)
-          .getAllRoutinesFiltered(nameFilter: ""), // Fetch all routines
+          .getAllRoutinesStream(), // Fetch all routines
       builder: (context, snapshot) {
         return _buildStepFromSnapshot(
           title: 'Routine',
@@ -73,11 +73,8 @@ class WorkoutConfiguration extends ConsumerWidget {
   // Step 3: Split Step
   Widget _buildSplitStep(WidgetRef ref, BuildContext context) {
     return StreamBuilder(
-      stream: ref
-          .watch(splitProvider)
-          .getAllSplitsFiltered(nameFilter: ""), // Fetch all splits
+      stream: ref.watch(splitProvider).getAllSplitsStream(), // Fetch all splits
       builder: (context, snapshot) {
-        print(error);
         return Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [

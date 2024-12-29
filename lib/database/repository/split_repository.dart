@@ -11,13 +11,27 @@ class SplitRepository {
     return _isar.splits.where().findAll();
   }
 
+  Stream<List<Split>> getAllSplitsStream() {
+    return _isar.splits.filter().nameContains("").watch(fireImmediately: true);
+  }
+
   Stream<List<Split>> getAllSplitsFiltered({
     required String nameFilter,
+    required String sortBy,
   }) {
-    return _isar.splits
+    // Apply filtering and sorting
+    QueryBuilder<Split, Split, QSortBy> query = _isar.splits
+        .where()
         .filter()
-        .nameContains(nameFilter)
-        .watch(fireImmediately: true);
+        .nameContains(nameFilter, caseSensitive: false);
+    switch (sortBy) {
+      case 'name_asc':
+        return query.sortByName().watch(fireImmediately: true);
+      case 'name_desc':
+        return query.sortByNameDesc().watch(fireImmediately: true);
+    }
+
+    return query.sortByName().watch(fireImmediately: true);
   }
 
   Future<bool> addSplit(Split split, List<Routine> routines) async {
@@ -51,7 +65,7 @@ class SplitRepository {
     required int currentRoutineIndex,
   }) async* {
     // Listen for changes in the split
-    await for (final split in getAllSplitsFiltered(nameFilter: "")) {
+    await for (final split in getAllSplitsStream()) {
       final orderedRoutines = await getOrderedRoutinesFromSplit(split[0]);
 
       // Emit the name of the routine based on the fixed current index

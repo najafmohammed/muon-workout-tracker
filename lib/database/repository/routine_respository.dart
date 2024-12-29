@@ -11,13 +11,38 @@ class RoutineRepository {
     return _isar.routines.where().findAll();
   }
 
-  Stream<List<Routine>> getAllRoutinesFiltered({
-    required String nameFilter,
-  }) {
+  Stream<List<Routine>> getAllRoutinesStream() {
     return _isar.routines
         .filter()
-        .nameContains(nameFilter)
+        .nameContains("")
         .watch(fireImmediately: true);
+  }
+
+  Stream<List<Routine>> getAllRoutinesFiltered({
+    required String nameFilter,
+    required String sortBy,
+  }) {
+    // Apply filtering and sorting
+    QueryBuilder<Routine, Routine, QSortBy> query = _isar.routines
+        .where()
+        .filter()
+        .nameContains(nameFilter, caseSensitive: false);
+    switch (sortBy) {
+      case 'name_asc':
+        return query.sortByName().watch(fireImmediately: true);
+      case 'name_desc':
+        return query.sortByNameDesc().watch(fireImmediately: true);
+      case 'date_asc':
+        return query.sortByLastRun().watch(fireImmediately: true);
+      case 'date_desc':
+        return query.sortByLastRunDesc().watch(fireImmediately: true);
+      case 'freq_asc':
+        return query.sortByLastRun().watch(fireImmediately: true);
+      case 'freq_desc':
+        return query.sortByLastRunDesc().watch(fireImmediately: true);
+    }
+
+    return query.sortByName().watch(fireImmediately: true);
   }
 
   Future<Routine?> getRoutineById(Id id) async {

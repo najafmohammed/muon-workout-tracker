@@ -16,6 +16,7 @@ class _SelectCurrentSplitScreenState extends ConsumerState<SelectCurrentSplit> {
   Split? selectedSplit;
   final TextEditingController _textController = TextEditingController();
   String nameFilter = '';
+  String sortBy = 'name_asc'; // Default sorting option
 
   @override
   void initState() {
@@ -39,6 +40,7 @@ class _SelectCurrentSplitScreenState extends ConsumerState<SelectCurrentSplit> {
     final splitRepo = ref.watch(splitProvider); // Watches Split Repository
     final userSettingsRepo = ref.watch(userSettingsProvider
         .notifier); // Watches the UserSettingsRepository StateNotifier
+    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -67,7 +69,8 @@ class _SelectCurrentSplitScreenState extends ConsumerState<SelectCurrentSplit> {
           ),
           Expanded(
             child: StreamBuilder<List<Split>>(
-              stream: splitRepo.getAllSplitsFiltered(nameFilter: nameFilter),
+              stream: splitRepo.getAllSplitsFiltered(
+                  nameFilter: nameFilter, sortBy: sortBy),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
