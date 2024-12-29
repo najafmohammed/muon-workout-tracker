@@ -47,6 +47,24 @@ class SplitRepository {
     }
   }
 
+  Stream<String?> getWorkoutNameStream({
+    required int currentRoutineIndex,
+  }) async* {
+    // Listen for changes in the split
+    await for (final split in getAllSplitsFiltered(nameFilter: "")) {
+      final orderedRoutines = await getOrderedRoutinesFromSplit(split[0]);
+
+      // Emit the name of the routine based on the fixed current index
+      if (currentRoutineIndex >= 0 &&
+          currentRoutineIndex < orderedRoutines.length) {
+        yield orderedRoutines[currentRoutineIndex].name;
+      } else {
+        // If the index is invalid, emit null
+        yield null;
+      }
+    }
+  }
+
   Future<List<Routine>> getOrderedRoutinesFromSplit(Split split) async {
     // Ensure that the routines are loaded
     await split.routines.load();

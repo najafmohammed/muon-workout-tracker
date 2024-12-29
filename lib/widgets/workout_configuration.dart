@@ -77,6 +77,7 @@ class WorkoutConfiguration extends ConsumerWidget {
           .watch(splitProvider)
           .getAllSplitsFiltered(nameFilter: ""), // Fetch all splits
       builder: (context, snapshot) {
+        print(error);
         return Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [

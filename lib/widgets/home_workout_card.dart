@@ -6,6 +6,7 @@ import 'package:muon_workout_tracker/database/models/split.dart';
 import 'package:muon_workout_tracker/database/providers/routine_session_provider.dart';
 import 'package:muon_workout_tracker/database/providers/split_provider.dart';
 import 'package:muon_workout_tracker/database/providers/user_settings_provider.dart';
+import 'package:muon_workout_tracker/screens/schedule.dart';
 import 'package:muon_workout_tracker/shared/wrappers/accordion.dart';
 import 'package:muon_workout_tracker/shared/wrappers/card_wrapper.dart';
 import 'package:muon_workout_tracker/widgets/workout_configuration.dart';
@@ -19,16 +20,13 @@ class HomeWorkoutCard extends ConsumerWidget {
     final routineSessionNotifier = ref.watch(routineSessionProvider.notifier);
     final userSettings = ref.watch(userSettingsProvider);
 
-    Future<Routine> getWorkoutName() async {
-      final routine = await split
-          .getOrderedRoutinesFromSplit(
-              userSettings?.currentSplit.value as Split)
-          .then((value) => value[userSettings!.currentRoutineIndex]);
-      return routine;
+    Stream<String?> getWorkoutName() {
+      return split.getWorkoutNameStream(
+          currentRoutineIndex: userSettings!.currentRoutineIndex);
     }
 
-    return FutureBuilder(
-      future: getWorkoutName(),
+    return StreamBuilder(
+      stream: getWorkoutName(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator(); // Show loading indicator while waiting
@@ -43,8 +41,8 @@ class HomeWorkoutCard extends ConsumerWidget {
                 error: snapshot.error.toString(),
               )); // Handle errors
         } else if (snapshot.hasData) {
-          final workoutName = snapshot.data?.name ??
-              'Unknown Routine'; // Fetch the routine name
+          final workoutName =
+              snapshot.data ?? 'Unknown Routine'; // Fetch the routine name
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -73,8 +71,18 @@ class HomeWorkoutCard extends ConsumerWidget {
                   height: 20,
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Schedule()),
+                        );
+                      },
+                      child: const Text("Schedule"),
+                    ),
                     OutlinedButton(
                       onPressed: () {
                         routineSessionNotifier.start();
